@@ -1,5 +1,7 @@
 package com.github.generatecode.utils;
 
+import com.github.generatecode.outbean.JdbcProperties;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,6 +12,34 @@ import java.sql.SQLException;
  * create by lishengbo on 2017-12-20 11:42
  */
 public class JDBCUtils {
+
+    /**
+     * 获取连接
+     * @param jdbcProperties
+     * @return
+     */
+    public static Connection getConnection(JdbcProperties jdbcProperties) {
+        String URL = jdbcProperties.getUrl();
+        String USER = jdbcProperties.getUserName();
+        String PASSWORD = jdbcProperties.getPwd();
+        // 1.加载驱动程序
+        // 2.获得数据库链接
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            Class.forName(jdbcProperties.getDriverName());
+            return conn;
+        } catch (Exception e) {
+            // 关闭资源
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * Statement 和 PreparedStatement之间的关系和区别.

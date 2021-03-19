@@ -1,6 +1,7 @@
 package com.github.generatecode;
 
 import com.github.generatecode.outbean.JdbcProperties;
+import com.github.generatecode.utils.JDBCUtils;
 
 /**
  * @author : Mr huangye
@@ -11,11 +12,11 @@ import com.github.generatecode.outbean.JdbcProperties;
 public class Test {
     public static void main(String[] args) {
         JdbcProperties jdbcProperties = JdbcProperties.getInstance();
-        jdbcProperties.setUrl("jdbc:mysql://172.30.10.41:3306/yeahmobi_kunlun");
+        jdbcProperties.setUrl("jdbc:mysql://172.30.10.41:3306/test");
         jdbcProperties.setUserName("root");
         jdbcProperties.setPwd("it-172-30-10-41");
 
-
+        JDBCUtils.getConnection(jdbcProperties);
 
     }
 }
