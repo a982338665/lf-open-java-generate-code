@@ -1,0 +1,38 @@
+!{camelCaseTableName}Dao.java    #!定义java文件名称!#
+
+package com.github.generatecode.template;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author : !##{author}##
+ * @URL : !##{url}##
+ * @createTime : !##{nowDate}##
+ * @Description : 生成模板映射类- 存储模板对应关系
+ *
+ * 模板文件所在位置
+ *      模板文件定义规则 ：
+ *      文件内容规则定义：
+ *          文件名称：!{camelCaseTableName}Dao.java
+ *          表名称：!{tableName}
+ *          文件内容：--
+ * 代码生成位置
+ */
+public class !{camelCaseTableName}Dao {
+
+    static final Map<String,String> map =  new HashMap<>();
+
+    #foreach_start($column in $tableInfo.fieldInfos)
+        #if_start(${column.comment})
+        /**
+        * ${column.comment}
+        */
+        #if_end
+        private $!{tool.getClsNameByFullName($column.type)} $!{column.name};
+    #foreach_end
+
+
+}
+
+
