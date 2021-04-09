@@ -4,15 +4,13 @@ import com.github.generatecode.model.FieldInfo;
 import com.github.generatecode.model.MatchKeywordStartToEnd;
 import com.github.generatecode.model.OutTableInfo;
 import com.github.generatecode.model.TableInfo;
+import com.github.generatecode.template.TypeCovert;
 import com.github.generatecode.util.ClassUtil;
 import com.github.generatecode.util.RegexMatches;
 import com.github.generatecode.util.StringUtils;
 import com.github.generatecode.util.TextUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author : Mr huangye
@@ -125,40 +123,13 @@ public class GenerateCode {
 //                System.err.println(fileName + "=========\n" + content);
                 //4.3 循环问题解决
                 MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#foreach_start", "#foreach_end", content);
-                String tmpVarOut = null;
-                List<FieldInfo> fieldInfos = new ArrayList<>();
-                if (e != null) {
-                    String keyword = e.getKeyword();
-                    //解析foreach后面的括号
-                    MatchKeywordStartToEnd r = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("(", ")", keyword);
-                    if (r != null) {
-                        //获取括号内容
-                        String kuohao = r.getKeyword();
-                        String[] ins = kuohao.split(" in ");
-                        if (ins.length != 2) {
-                            try {
-                                throw new Exception("#foreach 后面的格式不规范！");
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                                return;
-                            }
-                        } else {
-                            String tmpVar = ins[0].trim();
-                            tmpVarOut = tmpVar.replace("$", "");
-                            String baseVar = ins[1].trim();
-                            //截取前缀 $tableInfo. TODO 后面需要去判断是哪个信息集合的前缀，暂时只截取此前缀
-                            baseVar = baseVar.replace("$tableInfo.", "");
-                            try {
-                                //获取该表字段信息的值
-                                fieldInfos = (List<FieldInfo>) ClassUtil.getPropertyValue(table, baseVar);
-                                System.err.println("fieldInfos----" + fieldInfos);
-                            } catch (IllegalAccessException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                }
-                //4.4 if问题解决
+                Map<String, Object> analyseArrayAndTmpValMap = analyseArrayAndTmpVal(e, table, content);
+                String tmpVarOut = (String) analyseArrayAndTmpValMap.get("tmpVarOut");
+                List<FieldInfo> fieldInfos = (List<FieldInfo>) analyseArrayAndTmpValMap.get("fieldInfos");
+                //4.4  循环里面包if问题解决
+
+                //4.5 if问题单独解决
+
             }
         }
     }
@@ -169,6 +140,115 @@ public class GenerateCode {
             String mapKey = entry.getKey();
             String mapValue = entry.getValue();
             reader[0] = reader[0].replace(mapKey, mapValue);
+        }
+    }
+
+
+    private static Map<String, Object> analyseArrayAndTmpVal(MatchKeywordStartToEnd e, TableInfo table, String content) {
+        Map<String, Object> baseInfo = new HashMap<>();
+        String tmpVarOut = null;
+        List<FieldInfo> fieldInfos = new ArrayList<>();
+        if (e != null) {
+            String keyword = e.getKeyword();
+            //解析foreach后面的括号
+            MatchKeywordStartToEnd r = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("(", ")", keyword);
+            if (r != null) {
+                //获取括号内容
+                String kuohao = r.getKeyword();
+                String[] ins = kuohao.split(" in ");
+                if (ins.length != 2) {
+                    try {
+                        throw new Exception("#foreach 后面的格式不规范！");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    String tmpVar = ins[0].trim();
+                    tmpVarOut = tmpVar.replace("$", "");
+                    String baseVar = ins[1].trim();
+                    //截取前缀 $tableInfo. TODO 后面需要去判断是哪个信息集合的前缀，暂时只截取此前缀
+                    baseVar = baseVar.replace("$tableInfo.", "");
+                    try {
+                        //获取该表字段信息的值
+                        fieldInfos = (List<FieldInfo>) ClassUtil.getPropertyValue(table, baseVar);
+//                        System.err.println("fieldInfos----" + fieldInfos);
+                        baseInfo.put("tmpVarOut", tmpVarOut);
+                        baseInfo.put("fieldInfos", fieldInfos);
+                    } catch (IllegalAccessException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            //解析完成后，需要将foreach中（）及内容替换为空
+            keyword = keyword.replace(r.getKeywordFull(), "");
+            //匹配处理for循环中的对象数据，匹配以该值开头,以.结束的数据
+            MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", keyword);
+            //找到替换的对应关系，片段循环
+//            System.err.println("keyword===" + keyword);
+            //首次匹配需要生成foreach循环文本 ， 第二次开始要进行整行文本准备
+            if (rif != null) {
+//                System.err.println(rif.getKeyword());
+                for (FieldInfo fieldInfo : fieldInfos) {
+                    try {
+                        String tmpKeyword = keyword;
+                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
+                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
+//                        System.err.println(tmpKeyword);
+                        String s = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
+                        System.err.println(s);
+                    } catch (IllegalAccessException ex) {
+                        System.err.println("获取字段属性报错：" + keyword + "里面的" + rif.getKeyword());
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            System.err.println();
+
+
+            //解析foreach里面是否有if条件 - TODO if语句暂不支持解析
+            /*MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#if_start", "#if_end", keyword);
+            if (r != null) {
+                //获取括号内容
+                String kuohao = r.getKeyword();
+                String[] ins = kuohao.split(" in ");
+                if (ins.length != 2) {
+                    try {
+                        throw new Exception("#foreach 后面的格式不规范！");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
+                    String tmpVar = ins[0].trim();
+                    tmpVarOut = tmpVar.replace("$", "");
+                    String baseVar = ins[1].trim();
+                    //截取前缀 $tableInfo. TODO 后面需要去判断是哪个信息集合的前缀，暂时只截取此前缀
+                    baseVar = baseVar.replace("$tableInfo.", "");
+                    try {
+                        //获取该表字段信息的值
+                        fieldInfos = (List<FieldInfo>) ClassUtil.getPropertyValue(table, baseVar);
+//                        System.err.println("fieldInfos----" + fieldInfos);
+                        baseInfo.put("tmpVarOut", tmpVarOut);
+                        baseInfo.put("fieldInfos", fieldInfos);
+                    } catch (IllegalAccessException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }*/
+        }
+        return baseInfo;
+    }
+
+    private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
+        MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", tmpKeyword);
+        if (riff != null) {
+            //特殊的以;结尾的需要去掉
+            riff.setKeyword(riff.getKeyword().replace(";", ""));
+            String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword() );
+            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " +propertyValue2);
+//            System.err.println(tmpKeyword);
+            return anaylseForeachData(tmpVarOut,fieldInfo,tmpKeyword);
+        } else {
+            return tmpKeyword;
         }
     }
 
@@ -239,7 +319,8 @@ public class GenerateCode {
     public static List<TableInfo> getTableInfoMock(List<OutTableInfo> tableList) {
         //假设每个表结构数据都解析为
         List<TableInfo> list = new ArrayList<>();
-        tableList.forEach(v -> {
+        for (int i = 0; i < tableList.size(); i++) {
+            OutTableInfo v = tableList.get(i);
             TableInfo tableInfo = new TableInfo();
             String prefix = v.getPrefix();
             if (StringUtils.isEmpty(prefix)) {
@@ -253,15 +334,26 @@ public class GenerateCode {
             tableInfo.setCamelCase(v.isCamelCase());
             tableInfo.setTableName(v.getTableName());
             tableInfo.setTableNote("表注释，待解析");
-            //待替换-解析部分
-            tableInfo.setFieldInfos(Arrays.asList(
-                    new FieldInfo("id", "主键", StringUtils.getCamelCase("id", v.isCamelCase()), "bigint"),
-                    new FieldInfo("name", "主键", StringUtils.getCamelCase("name", v.isCamelCase()), "char"),
-                    new FieldInfo("product_type", "主键", StringUtils.getCamelCase("product_type", v.isCamelCase()), "varchar"),
-                    new FieldInfo("create_time", "时间", StringUtils.getCamelCase("create_time", v.isCamelCase()), "datetime")
-            ));
+            //TODO 待替换-解析部分
+            if (i % 2 == 0) {
+                tableInfo.setFieldInfos(Arrays.asList(
+                        new FieldInfo("id", "主键", StringUtils.getCamelCase("id", v.isCamelCase()), "bigint",
+                                TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")),
+                        new FieldInfo("name", "姓名", StringUtils.getCamelCase("name", v.isCamelCase()), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
+                        new FieldInfo("product_type", "产品类型", StringUtils.getCamelCase("product_type", v.isCamelCase()), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
+                        new FieldInfo("create_time", "时间", StringUtils.getCamelCase("create_time", v.isCamelCase()), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
+                ));
+            } else {
+                tableInfo.setFieldInfos(Arrays.asList(
+                        new FieldInfo("id1", "主键1", StringUtils.getCamelCase("id1", v.isCamelCase()), "bigint",
+                                TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")),
+                        new FieldInfo("name1", "姓名1", StringUtils.getCamelCase("name1", v.isCamelCase()), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
+                        new FieldInfo("product_type1", "产品类型1", StringUtils.getCamelCase("product_type1", v.isCamelCase()), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
+                        new FieldInfo("create_time1", "时间1", StringUtils.getCamelCase("create_time1", v.isCamelCase()), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
+                ));
+            }
             list.add(tableInfo);
-        });
+        }
         return list;
     }
 

@@ -54,7 +54,8 @@ public class RegexMatches {
      */
     public static String escapeExprSpecialWord(String keyword) {
         if (!StringUtils.isEmpty(keyword)) {
-            String[] fbsArr = { "\\", "$", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
+            String[] fbsArr = { "\\", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
+//            String[] fbsArr = { "\\", "$", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
 //            String[] fbsArr = { "\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
             for (String key : fbsArr) {
                 if (keyword.contains(key)) {

@@ -1,6 +1,7 @@
 package com.github.generatecode.model;
 
 import com.github.generatecode.template.TypeCovert;
+import com.github.generatecode.util.StringUtils;
 
 /**
  * @author : Mr huangye
@@ -33,9 +34,18 @@ public class FieldInfo {
     /**
      * 类属性字段的类型
      */
-    private String classTypeFull;
+    private String classTypeShort;
 
     public FieldInfo() {
+    }
+
+    public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType, String classType, String classTypeShort) {
+        this.fieldName = fieldName;
+        this.fieldNote = fieldNote;
+        this.camelCaseFieldName = camelCaseFieldName;
+        this.fieldType = fieldType;
+        this.classType = classType;
+        this.classTypeShort = classTypeShort;
     }
 
     public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType) {
@@ -43,6 +53,12 @@ public class FieldInfo {
         this.fieldNote = fieldNote;
         this.camelCaseFieldName = camelCaseFieldName;
         this.fieldType = fieldType;
+//        if(StringUtils.isEmpty(this.fieldType)){
+//            String classType = TypeCovert.getClassType(fieldType);
+//            String classTypeShort = TypeCovert.getClassTypeShort(fieldType);
+//            this.classType = classType;
+//            this.classTypeShort = classTypeShort;
+//        }
     }
 
     public String getFieldName() {
@@ -75,17 +91,17 @@ public class FieldInfo {
 
     public void setFieldType(String fieldType) {
         this.fieldType = fieldType;
-        String classType = TypeCovert.getClassType(fieldType);
-        String classTypeShort = TypeCovert.getClassTypeShort(fieldType);
-        this.classType = classType;
-        this.classTypeFull = classTypeShort;
+//        String classType = TypeCovert.getClassType(fieldType);
+//        String classTypeShort = TypeCovert.getClassTypeShort(fieldType);
+//        this.classType = classType;
+//        this.classTypeShort = classTypeShort;
     }
 
     public String getClassType() {
         return classType;
     }
 
-    public String getClassTypeFull() {
-        return classTypeFull;
+    public String getclassTypeShort() {
+        return classTypeShort;
     }
 }

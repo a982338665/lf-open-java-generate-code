@@ -12,10 +12,11 @@ public class ClassUtil {
         Class<?> Clazz = obj.getClass();
         Field field;
         if ((field = getField(Clazz, propertyName)) == null) {
-            return null;
+//            return null;
+            return "暂无，请查看该处属性设置是否正确？" + propertyName;
         }
         field.setAccessible(true);
-        return field.get(obj);
+        return field.get(obj) == null ? "暂无，请查看该处属性设置是否正确？" + propertyName : field.get(obj);
     }
 
     public static Field getField(Class<?> clazz, String propertyName) {

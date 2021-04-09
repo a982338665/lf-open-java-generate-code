@@ -24,11 +24,12 @@ public class !{camelCaseTableName}Dao {
     static final Map<String,String> map =  new HashMap<>();
 
     #foreach_start($column in $tableInfo.fieldInfos)
+        #if_start($column.fieldNote)
         /**
         * $column.fieldNote
-        * $column.fieldNote2
         */
-        private $column.classTypeShort $column.camelCaseFieldName;
+        #if_end
+        private $column.classType $column.camelCaseFieldName;
     #foreach_end
 
 
