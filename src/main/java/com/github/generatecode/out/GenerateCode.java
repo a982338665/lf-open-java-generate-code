@@ -125,7 +125,10 @@ public class GenerateCode {
                 MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#foreach_start", "#foreach_end", content);
                 Map<String, Object> analyseArrayAndTmpValMap = analyseArrayAndTmpVal(e, table, content);
                 String tmpVarOut = (String) analyseArrayAndTmpValMap.get("tmpVarOut");
+                String toReplace = (String) analyseArrayAndTmpValMap.get("toReplace");
                 List<FieldInfo> fieldInfos = (List<FieldInfo>) analyseArrayAndTmpValMap.get("fieldInfos");
+                String replace = content.replace(e.getKeywordFull(), toReplace);
+                System.err.println(replace);
                 //4.4  循环里面包if问题解决
 
                 //4.5 if问题单独解决
@@ -146,7 +149,8 @@ public class GenerateCode {
 
     private static Map<String, Object> analyseArrayAndTmpVal(MatchKeywordStartToEnd e, TableInfo table, String content) {
         Map<String, Object> baseInfo = new HashMap<>();
-        String tmpVarOut = null;
+        String tmpVarOut = "";
+        String toReplace = "";
         List<FieldInfo> fieldInfos = new ArrayList<>();
         if (e != null) {
             String keyword = e.getKeyword();
@@ -194,15 +198,18 @@ public class GenerateCode {
                         String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
                         tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
 //                        System.err.println(tmpKeyword);
-                        String s = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
-                        System.err.println(s);
+                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
+//                        System.err.println(result);
+                        toReplace = StringUtils.concat(toReplace, result);
+//                        System.err.println(s);
                     } catch (IllegalAccessException ex) {
                         System.err.println("获取字段属性报错：" + keyword + "里面的" + rif.getKeyword());
                         ex.printStackTrace();
                     }
                 }
             }
-            System.err.println();
+//            System.err.println();
+            baseInfo.put("toReplace", toReplace);
 
 
             //解析foreach里面是否有if条件 - TODO if语句暂不支持解析
@@ -242,11 +249,16 @@ public class GenerateCode {
         MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", tmpKeyword);
         if (riff != null) {
             //特殊的以;结尾的需要去掉
-            riff.setKeyword(riff.getKeyword().replace(";", ""));
-            String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword() );
-            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " +propertyValue2);
+            if (riff.getKeyword().contains(";")) {
+                riff.setKeyword(riff.getKeyword().replace(";", ""));
+                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + ";");
+            } else {
+                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
+            }
 //            System.err.println(tmpKeyword);
-            return anaylseForeachData(tmpVarOut,fieldInfo,tmpKeyword);
+            return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
         } else {
             return tmpKeyword;
         }
@@ -363,8 +375,8 @@ public class GenerateCode {
     public static List<OutTableInfo> getTableOutInfoMock() {
         List<OutTableInfo> list = Arrays.asList(
                 new OutTableInfo("t_s_user"),
-                new OutTableInfo("t_s_order", "t_s"),
-                new OutTableInfo("t_s_order_mmp", "t_s", false)
+                new OutTableInfo("t_s_order", "t_s_"),
+                new OutTableInfo("t_s_order_mmp", "t_s_", false)
 
         );
         // t_s_user

@@ -11,7 +11,7 @@ import java.io.File;
 public class StringUtils {
 
     public static String convertPath(String str) {
-        return concat("\\",str.replace(".", "\\"));
+        return concat("\\", str.replace(".", "\\"));
     }
 
     public static String concatSync(String... strs) {
@@ -46,30 +46,41 @@ public class StringUtils {
     /**
      * 字段转驼峰
      *
-     * @param name  需要转换的字段名
-     * @param isFirstletter  首字符是否大写：用来区分是类名还是字段名 true为类名 false为字段名
+     * @param name          需要转换的字段名
+     * @param isFirstletter 首字符是否大写：用来区分是类名还是字段名 true为类名 false为字段名
      * @return
      */
-    public static String getCamelCase(String name,boolean isFirstletter) {
-        String[] s = name.split("_");
+    public static String getCamelCase(String name, boolean isFirstletter) {
+        String[] s = name.trim().split("_");
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < s.length; i++) {
-            String s1 = s[i];
-            if (i == 0) {
-                if(isFirstletter){
-                    stringBuilder.append(s1.toUpperCase());
-                }else{
-                    //首字母不变 - 数据库命名不规范的需要调整
-                    stringBuilder.append(s1);
+        if (s.length >= 2) {
+            for (int i = 0; i < s.length; i++) {
+                String s1 = s[i];
+                if (i == 0) {
+                    if (isFirstletter) {
+                        if (s1.length() == 1) {
+                            stringBuilder.append(s1.toUpperCase());
+                        }else{
+                            //其余的首字母大写
+                            stringBuilder.append(s1.substring(0, 1).toUpperCase());
+                            //剩余的不变
+                            stringBuilder.append(s1.substring(1));
+                        }
+                    } else {
+                        //首字母不变 - 数据库命名不规范的需要调整
+                        stringBuilder.append(s1);
+                    }
+                } else {
+                    //其余的首字母大写
+                    stringBuilder.append(s1.substring(0, 1).toUpperCase());
+                    //剩余的不变
+                    stringBuilder.append(s1.substring(1));
                 }
-            } else {
-                //其余的首字母大写
-                stringBuilder.append(s1.substring(0, 1).toUpperCase());
-                //剩余的不变
-                stringBuilder.append(s1.substring(1));
             }
+            return stringBuilder.toString();
+        } else {
+            return name;
         }
-        return stringBuilder.toString();
     }
 
     public static boolean isEmpty(Object str) {
