@@ -208,8 +208,8 @@ public class GenerateCode {
                 for (FieldInfo fieldInfo : fieldInfos) {
                     try {
                         String tmpKeyword = keyword;
-                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
-                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
+//                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
+//                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
 //                        System.err.println(tmpKeyword);
                         String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
 //                        System.err.println(result);
@@ -271,54 +271,38 @@ public class GenerateCode {
     private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
         MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", tmpKeyword);
         if (riff != null) {
+//            System.err.println("====================" + riff.getKeyword());
             //特殊的以;,(结尾的需要去掉
             String otherSplit = getOtherSplit(riff.getKeyword());
             if (!StringUtils.isEmpty(otherSplit)) {
-                riff.setKeyword(riff.getKeyword().replace(otherSplit, ""));
-                //添加管道符支持
-                String[] guandao = riff.getKeyword().split("\\|");
-                if (guandao.length >= 2) {
-                    //获取属性值
-                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, guandao[0]);
-                    //执行管道方法
-                    //添加管道方法,从第一个读取管道 标识
-                    for (int i = 1; i < guandao.length; i++) {
-                        String func = guandao[i].trim();
-                        Function function = OutPipeFunction.PIPE_MAP.get(func);
-                        if (function == null) {
-                            throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
-                        } else {
-                            propertyValue2 = (String) function.apply(propertyValue2);
-                        }
-                    }
-                    //替换数据
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + otherSplit);
-                } else {
-                    //没有添加管道
-                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + otherSplit);
-                }
+                riff.setKeyword(riff.getKeyword().replace(otherSplit, "").trim());
+                //没有添加管道
+                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2 + otherSplit);
             } else {
-                String[] guandao = riff.getKeyword().split("\\|");
-                if (guandao.length >= 2) {
+                //保证管道符使用时必须在最后面缀空格符号此时，可以优先判断
+                String keyword = riff.getKeyword();
+//                System.err.println("===================="+keyword);
+                //添加管道符支持
+                String[] pipe = keyword.split("\\|");
+                if (pipe.length >= 2) {
                     //获取属性值
-                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, guandao[0]);
+                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, pipe[0]);
                     //执行管道方法
                     //添加管道方法,从第一个读取管道 标识
-                    for (int i = 1; i < guandao.length; i++) {
-                        String func = guandao[i].trim();
+                    for (int i = 1; i < pipe.length; i++) {
+                        String func = pipe[i].trim();
                         Function function = OutPipeFunction.PIPE_MAP.get(func);
                         if (function == null) {
                             throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
                         } else {
                             propertyValue2 = (String) function.apply(propertyValue2);
+                            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
                         }
                     }
-                    //替换数据
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
                 } else {
                     String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
                 }
             }
 //            System.err.println(tmpKeyword);
