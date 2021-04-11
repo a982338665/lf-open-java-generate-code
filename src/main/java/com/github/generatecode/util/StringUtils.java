@@ -60,7 +60,7 @@ public class StringUtils {
                     if (isFirstletter) {
                         if (s1.length() == 1) {
                             stringBuilder.append(s1.toUpperCase());
-                        }else{
+                        } else {
                             //其余的首字母大写
                             stringBuilder.append(s1.substring(0, 1).toUpperCase());
                             //剩余的不变
@@ -79,7 +79,16 @@ public class StringUtils {
             }
             return stringBuilder.toString();
         } else {
-            return name;
+            //如果是类的话，首字母要大写
+            if (isFirstletter) {
+                //其余的首字母大写
+                stringBuilder.append(name.substring(0, 1).toUpperCase());
+                //剩余的不变
+                stringBuilder.append(name.substring(1));
+                return stringBuilder.toString();
+            } else {
+                return name;
+            }
         }
     }
 

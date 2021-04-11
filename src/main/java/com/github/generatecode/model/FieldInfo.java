@@ -104,4 +104,17 @@ public class FieldInfo {
     public String getclassTypeShort() {
         return classTypeShort;
     }
+
+
+    @Override
+    public String toString() {
+        return "FieldInfo{" +
+                "fieldName='" + fieldName + '\'' +
+                ", fieldNote='" + fieldNote + '\'' +
+                ", camelCaseFieldName='" + camelCaseFieldName + '\'' +
+                ", fieldType='" + fieldType + '\'' +
+                ", classType='" + classType + '\'' +
+                ", classTypeShort='" + classTypeShort + '\'' +
+                '}';
+    }
 }

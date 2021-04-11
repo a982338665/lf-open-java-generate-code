@@ -73,4 +73,15 @@ public class TableInfo {
     public void setFieldInfos(List<FieldInfo> fieldInfos) {
         this.fieldInfos = fieldInfos;
     }
+
+    @Override
+    public String toString() {
+        return "TableInfo{" +
+                "tableName='" + tableName + '\'' +
+                ", tableNote='" + tableNote + '\'' +
+                ", camelCaseTableName='" + camelCaseTableName + '\'' +
+                ", camelCase=" + camelCase +
+                ", fieldInfos=" + fieldInfos +
+                '}';
+    }
 }

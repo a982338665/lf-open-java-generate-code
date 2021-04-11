@@ -349,23 +349,24 @@ public class GenerateCode {
             //TODO 待替换-解析部分
             if (i % 2 == 0) {
                 tableInfo.setFieldInfos(Arrays.asList(
-                        new FieldInfo("id", "主键", StringUtils.getCamelCase("id", v.isCamelCase()), "bigint",
+                        new FieldInfo("id", "主键", StringUtils.getCamelCase("id", false), "bigint",
                                 TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")),
-                        new FieldInfo("name", "姓名", StringUtils.getCamelCase("name", v.isCamelCase()), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
-                        new FieldInfo("product_type", "产品类型", StringUtils.getCamelCase("product_type", v.isCamelCase()), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
-                        new FieldInfo("create_time", "时间", StringUtils.getCamelCase("create_time", v.isCamelCase()), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
+                        new FieldInfo("name", "姓名", StringUtils.getCamelCase("name", false), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
+                        new FieldInfo("product_type", "产品类型", StringUtils.getCamelCase("product_type", false), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
+                        new FieldInfo("create_time", "时间", StringUtils.getCamelCase("create_time", false), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
                 ));
             } else {
                 tableInfo.setFieldInfos(Arrays.asList(
-                        new FieldInfo("id1", "主键1", StringUtils.getCamelCase("id1", v.isCamelCase()), "bigint",
+                        new FieldInfo("id1", "主键1", StringUtils.getCamelCase("id1", false), "bigint",
                                 TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")),
-                        new FieldInfo("name1", "姓名1", StringUtils.getCamelCase("name1", v.isCamelCase()), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
-                        new FieldInfo("product_type1", "产品类型1", StringUtils.getCamelCase("product_type1", v.isCamelCase()), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
-                        new FieldInfo("create_time1", "时间1", StringUtils.getCamelCase("create_time1", v.isCamelCase()), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
+                        new FieldInfo("name1", "姓名1", StringUtils.getCamelCase("name1", false), "char", TypeCovert.getClassType("char"), TypeCovert.getClassTypeShort("char")),
+                        new FieldInfo("product_type1", "产品类型1", StringUtils.getCamelCase("product_type1", false), "varchar", TypeCovert.getClassType("varchar"), TypeCovert.getClassTypeShort("varchar")),
+                        new FieldInfo("create_time1", "时间1", StringUtils.getCamelCase("create_time1", false), "datetime", TypeCovert.getClassType("datetime"), TypeCovert.getClassTypeShort("datetime"))
                 ));
             }
             list.add(tableInfo);
         }
+        list.forEach(System.err::println);
         return list;
     }
 
@@ -376,7 +377,7 @@ public class GenerateCode {
         List<OutTableInfo> list = Arrays.asList(
                 new OutTableInfo("t_s_user"),
                 new OutTableInfo("t_s_order", "t_s_"),
-                new OutTableInfo("t_s_order_mmp", "t_s_", false)
+                new OutTableInfo("t_s_order_mmp", "t_s_", true)
 
         );
         // t_s_user
