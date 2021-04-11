@@ -1,13 +1,16 @@
 package com.github.generatecode.util;
 
 import java.util.Date;
+import java.lang.String;
+import java.lang.Long;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author : 皇夜_
  * @URL : CSDN 皇夜_
- * @createTime : 2021-4-12 1:09:44
+ * @createTime : 2021-4-12 1:51:20
  * @Description : 生成模板映射类- 存储模板对应关系
  * <p>
  * 模板文件所在位置

@@ -125,7 +125,20 @@ public class GenerateCode {
 //                System.err.println(fileName + "=========\n" + content);
                 //4.3 循环问题解决
                 String replace = getForeachMuch(table, content);
-
+                //4.4 自动导包问题处理
+                for (int i = 0; i < table.getFieldInfos().size(); i++) {
+                    FieldInfo fieldInfo = table.getFieldInfos().get(i);
+                    //匹配到数据后自动导包
+                    MatchKeywordStartToEnd autoImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(StringUtils.concat("import ", fieldInfo.getClassType()), ";", replace);
+                    if (autoImport == null) {
+                        //没有该包的数据，需要匹配package导入
+                        MatchKeywordStartToEnd packImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter("package ", ";", replace);
+                        //前面已经校验过肯定有package
+                        replace = replace.replace(packImport.getKeywordFull(), StringUtils.concat(packImport.getKeywordFull(), "\n",
+                                "import ", fieldInfo.getClassType(), ";"
+                        ));
+                    }
+                }
                 System.err.println(replace);
                 //4.4  循环里面包if问题解决
 
@@ -202,6 +215,7 @@ public class GenerateCode {
             MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", keyword);
             //找到替换的对应关系，片段循环
 //            System.err.println("keyword===" + keyword);
+//            Set<String>  autoList = new HashSet<>();
             //首次匹配需要生成foreach循环文本 ， 第二次开始要进行整行文本准备
             if (rif != null) {
 //                System.err.println(rif.getKeyword());
@@ -223,6 +237,7 @@ public class GenerateCode {
             }
 //            System.err.println();
             baseInfo.put("toReplace", toReplace);
+//            baseInfo.put("autoImport",);
 
 
             //解析foreach里面是否有if条件 - TODO if语句暂不支持解析

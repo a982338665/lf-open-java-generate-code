@@ -2,7 +2,7 @@
 
 package com.github.generatecode.template;
 
-import java.util.HashMap;
+import java.util.HashMap;  #!   导包仅支持左边格式，空格只有一个，且以分号结束   !#
 import java.util.Map;
 
 /**
