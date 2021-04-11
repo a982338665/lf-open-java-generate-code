@@ -39,7 +39,7 @@ public class !{camelCaseTableName}Dao {
         #!   ===  $XXXX.camelCaseFieldName 强调必须以空格结尾以便识别具体参数   !#
         #!   ===  $XXXX.camelCaseFieldName|upper 后面紧跟|upper 表示管道符，转换为首字母大写 !#
 
-        public void set$XXXX.camelCaseFieldName|upper ($XXXX.classTypeShort  $XXXX.camelCaseFieldName) {
+        public void set$XXXX.camelCaseFieldName|upper|upperAll ($XXXX.classTypeShort  $XXXX.camelCaseFieldName) {
             this.$XXXX.camelCaseFieldName = $XXXX.camelCaseFieldName;
         }
     #foreach_end
