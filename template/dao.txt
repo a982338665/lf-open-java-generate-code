@@ -31,7 +31,18 @@ public class !{camelCaseTableName}Dao {
         private $XXXX.classTypeShort $XXXX.camelCaseFieldName;
     #foreach_end
 
+    #foreach_start($XXXX in $tableInfo.fieldInfos)
+        public String get$XXXX.camelCaseFieldName|upper () {
+            return $XXXX.camelCaseFieldName;
+        }
 
+        #!   ===  $XXXX.camelCaseFieldName 强调必须以空格结尾以便识别具体参数   !#
+        #!   ===  $XXXX.camelCaseFieldName|upper 后面紧跟|upper 表示管道符，转换为首字母大写 !#
+
+        public void set$XXXX.camelCaseFieldName|upper (String $XXXX.camelCaseFieldName) {
+            this.$XXXX.camelCaseFieldName = $XXXX.camelCaseFieldName;
+        }
+    #foreach_end
 }
 
 

@@ -10,7 +10,9 @@ import com.github.generatecode.util.RegexMatches;
 import com.github.generatecode.util.StringUtils;
 import com.github.generatecode.util.TextUtil;
 
+import javax.naming.ldap.HasControls;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author : Mr huangye
@@ -122,18 +124,29 @@ public class GenerateCode {
                 String content = StringUtils.concat("package", aPackage);
 //                System.err.println(fileName + "=========\n" + content);
                 //4.3 循环问题解决
-                MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#foreach_start", "#foreach_end", content);
-                Map<String, Object> analyseArrayAndTmpValMap = analyseArrayAndTmpVal(e, table, content);
-                String tmpVarOut = (String) analyseArrayAndTmpValMap.get("tmpVarOut");
-                String toReplace = (String) analyseArrayAndTmpValMap.get("toReplace");
-                List<FieldInfo> fieldInfos = (List<FieldInfo>) analyseArrayAndTmpValMap.get("fieldInfos");
-                String replace = content.replace(e.getKeywordFull(), toReplace);
+                String replace = getForeachMuch(table, content);
+
                 System.err.println(replace);
                 //4.4  循环里面包if问题解决
 
                 //4.5 if问题单独解决
 
             }
+        }
+    }
+
+    private static String getForeachMuch(TableInfo table, String content) {
+        MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#foreach_start", "#foreach_end", content);
+        if (e != null) {
+            Map<String, Object> analyseArrayAndTmpValMap = analyseArrayAndTmpVal(e, table);
+//                String tmpVarOut = (String) analyseArrayAndTmpValMap.get("tmpVarOut");
+            String toReplace = (String) analyseArrayAndTmpValMap.get("toReplace");
+//                List<FieldInfo> fieldInfos = (List<FieldInfo>) analyseArrayAndTmpValMap.get("fieldInfos");
+            content = content.replace(e.getKeywordFull(), toReplace);
+            return getForeachMuch(table, content);
+        } else {
+            return content;
+
         }
     }
 
@@ -147,7 +160,7 @@ public class GenerateCode {
     }
 
 
-    private static Map<String, Object> analyseArrayAndTmpVal(MatchKeywordStartToEnd e, TableInfo table, String content) {
+    private static Map<String, Object> analyseArrayAndTmpVal(MatchKeywordStartToEnd e, TableInfo table) {
         Map<String, Object> baseInfo = new HashMap<>();
         String tmpVarOut = "";
         String toReplace = "";
@@ -245,17 +258,68 @@ public class GenerateCode {
         return baseInfo;
     }
 
+    private static String getOtherSplit(String keyword) {
+        List<String> list = Arrays.asList(";", ")", "()");
+        for (String s : list) {
+            if (keyword.contains(s)) {
+                return s;
+            }
+        }
+        return null;
+    }
+
     private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
         MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", tmpKeyword);
         if (riff != null) {
-            //特殊的以;结尾的需要去掉
-            if (riff.getKeyword().contains(";")) {
-                riff.setKeyword(riff.getKeyword().replace(";", ""));
-                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + ";");
+            //特殊的以;,(结尾的需要去掉
+            String otherSplit = getOtherSplit(riff.getKeyword());
+            if (!StringUtils.isEmpty(otherSplit)) {
+                riff.setKeyword(riff.getKeyword().replace(otherSplit, ""));
+                //添加管道符支持
+                String[] guandao = riff.getKeyword().split("\\|");
+                if (guandao.length >= 2) {
+                    //获取属性值
+                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, guandao[0]);
+                    //执行管道方法
+                    //添加管道方法,从第一个读取管道 标识
+                    for (int i = 1; i < guandao.length; i++) {
+                        String func = guandao[i].trim();
+                        Function function = OutPipeFunction.PIPE_MAP.get(func);
+                        if (function == null) {
+                            throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
+                        } else {
+                            propertyValue2 = (String) function.apply(propertyValue2);
+                        }
+                    }
+                    //替换数据
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + otherSplit);
+                } else {
+                    //没有添加管道
+                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2 + otherSplit);
+                }
             } else {
-                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
+                String[] guandao = riff.getKeyword().split("\\|");
+                if (guandao.length >= 2) {
+                    //获取属性值
+                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, guandao[0]);
+                    //执行管道方法
+                    //添加管道方法,从第一个读取管道 标识
+                    for (int i = 1; i < guandao.length; i++) {
+                        String func = guandao[i].trim();
+                        Function function = OutPipeFunction.PIPE_MAP.get(func);
+                        if (function == null) {
+                            throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
+                        } else {
+                            propertyValue2 = (String) function.apply(propertyValue2);
+                        }
+                    }
+                    //替换数据
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
+                } else {
+                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), " " + propertyValue2);
+                }
             }
 //            System.err.println(tmpKeyword);
             return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
