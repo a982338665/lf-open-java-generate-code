@@ -118,10 +118,17 @@ public class GenerateCode {
                 //4.1.数据库解析常量替换，替换基本属性信息
                 coperReader = dealbaseInfo(coperReader, table);
                 //4.2 针对每个表都有不一样的文件名，需要将文本文件拆分为两部分 2.1 文件名 2.2 文件内容
-                String[] packages = coperReader.split("package");
-                String fileName = packages[0].trim();
+                String[] packages = coperReader.split("package ");
+                //获取文件设置信息
+                String filesInfo = packages[0].trim();
+                String fileName = dealbaseInfoStartAndEnd(filesInfo, table, "#setFileName[", "]");
+                String filePathSave = dealbaseInfoStartAndEnd(filesInfo, table, "#setFilePath[", "]");
+
+                System.err.println(fileName + "=========================" + filePathSave);
+                //匹配文件存储路径
+
                 String aPackage = packages[1];
-                String content = StringUtils.concat("package", aPackage);
+                String content = StringUtils.concat("package ", aPackage);
 //                System.err.println(fileName + "=========\n" + content);
                 //4.3 循环问题解决
                 String replace = getForeachMuch(table, content);
@@ -384,6 +391,16 @@ public class GenerateCode {
             }
         }
         return reader;
+    }
+
+    private static String dealbaseInfoStartAndEnd(String reader, TableInfo table, String start, String end) {
+        //1.查询数据库常量位置信息
+        MatchKeywordStartToEnd key = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(start
+                , end, reader);
+        //获取属性值
+        String keyword = key.getKeyword();
+        //根据属性值取得解析表后的真实数值
+        return keyword;
     }
 
     /**

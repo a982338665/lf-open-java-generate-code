@@ -1,4 +1,5 @@
-!{camelCaseTableName}Dao.java    #!定义java文件名称!#
+#setFileName[!{camelCaseTableName}Model.java] #!定义java文件名称!#
+#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code]
 
 package com.github.generatecode.template;
 #!  import java.util.HashMap; 导包仅支持左边格式，空格只有一个，且以分号结束   !#
@@ -13,7 +14,7 @@ import java.util.Map;
  * 模板文件所在位置
  *      模板文件定义规则 ：
  *      文件内容规则定义：
- *          文件名称：!{camelCaseTableName}Dao.java
+ *          文件名称：!{camelCaseTableName}Model.java
  *          表名称：!{tableName}
  *          文件内容：--
  * 代码生成位置
