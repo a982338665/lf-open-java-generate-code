@@ -147,6 +147,8 @@ public class GenerateCode {
                     }
                 }
                 System.err.println(replace);
+                //生成文件
+                TextUtil.write(StringUtils.concat(filePathSave,"//",fileName),replace);
                 //4.4  循环里面包if问题解决
 
                 //4.5 if问题单独解决
