@@ -10,7 +10,6 @@ import com.github.generatecode.util.RegexMatches;
 import com.github.generatecode.util.StringUtils;
 import com.github.generatecode.util.TextUtil;
 
-import javax.naming.ldap.HasControls;
 import java.util.*;
 import java.util.function.Function;
 
