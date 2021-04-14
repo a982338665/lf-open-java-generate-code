@@ -30,9 +30,23 @@ public class TableInfo {
     private boolean camelCase = true;
 
     /**
+     * 主键字段信息
+     */
+    private FieldInfo primaryKeyInfo;
+
+    /**
      * 字段对应值
      */
     private List<FieldInfo> fieldInfos;
+
+
+    public FieldInfo getPrimaryKeyInfo() {
+        return primaryKeyInfo;
+    }
+
+    public void setPrimaryKeyInfo(FieldInfo primaryKeyInfo) {
+        this.primaryKeyInfo = primaryKeyInfo;
+    }
 
     public String getTableName() {
         return tableName;

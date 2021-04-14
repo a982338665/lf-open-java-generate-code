@@ -66,7 +66,7 @@ public class SetGenerateConf {
     /**
      * 数据库解析后生成变量的模板信息前缀
      * */
-    private static String dbTemplateStart = "!{";
+    private static String dbTemplateStart = "$!{";
     /**
      * 数据库解析后生成变量的模板信息后缀
      */

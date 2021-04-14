@@ -1,33 +1,22 @@
-#setFileName[!{camelCaseTableName}Model.java] #!定义java文件名称!#
+#setFileName[$!{camelCaseTableName}Model.java] #!定义java文件名称!#
 #setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\entity]
 
 package com.github.test.entity;
-#!  import java.util.HashMap; 导包仅支持左边格式，空格只有一个，且以分号结束   !#
 /**
  * @author : !##{author}##
  * @URL : !##{url}##
- * @createTime : !##{nowDate}##
+ * @CreateTime : !##{nowDate}##
  * @Description : 生成模板映射类- 存储模板对应关系
- *
- * 模板文件所在位置
- *      模板文件定义规则 ：
- *      文件内容规则定义：
- *          文件名称：!{camelCaseTableName}Model.java
- *          表名称：!{tableName}
- *          文件内容：--
- * 代码生成位置
+ * @TableName ：$!{tableName} $!{tableNote}
  */
-public class !{camelCaseTableName}Model {
+public class $!{camelCaseTableName}Model {
 
     #foreach_start($XXXX in $tableInfo.fieldInfos)
         /**
         * $XXXX.fieldNote
-        * #! $XXXX.fieldNote2  注意：中间的空格为两格，一个用来匹配数据，一个用来做符号间隔!#
         */
         private $XXXX.classTypeShort  $XXXX.camelCaseFieldName;
     #foreach_end
-        #!   ===  $XXXX.camelCaseFieldName 强调必须以空格结尾以便识别具体参数   !#
-        #!   ===  $XXXX.camelCaseFieldName|upper 后面紧跟|upper 表示管道符，转换为首字母大写 !#
     #foreach_start($XXXX in $tableInfo.fieldInfos)
         public $XXXX.classTypeShort  get$XXXX.camelCaseFieldName|upper () {
             return $XXXX.camelCaseFieldName;

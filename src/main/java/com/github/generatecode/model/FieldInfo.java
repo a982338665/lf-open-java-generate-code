@@ -1,8 +1,5 @@
 package com.github.generatecode.model;
 
-import com.github.generatecode.template.TypeCovert;
-import com.github.generatecode.util.StringUtils;
-
 /**
  * @author : Mr huangye
  * @URL : CSDN 皇夜_
@@ -35,6 +32,12 @@ public class FieldInfo {
      * 类属性字段的类型
      */
     private String classTypeShort;
+    /**
+     * 是否为主键
+     */
+    private boolean primaryKey;
+
+
 
     public FieldInfo() {
     }
@@ -106,6 +109,14 @@ public class FieldInfo {
     }
 
 
+    public boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(boolean primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+
     @Override
     public String toString() {
         return "FieldInfo{" +
@@ -115,6 +126,7 @@ public class FieldInfo {
                 ", fieldType='" + fieldType + '\'' +
                 ", classType='" + classType + '\'' +
                 ", classTypeShort='" + classTypeShort + '\'' +
+                ", primaryKey=" + primaryKey +
                 '}';
     }
 }

@@ -14,7 +14,12 @@ public class TextUtil {
     /**
      * 写文件
      */
-    public static void write(String path, String text) {
+    public static void write(String filePathSave,String fileName, String text) {
+        String path = StringUtils.concat(filePathSave, "//", fileName);
+        File filePath = new File(filePathSave);
+        if(!filePath.exists()){
+            filePath.mkdirs();
+        }
         //打开文件
         File wFile = new File(path);
         //创建FileWriter
