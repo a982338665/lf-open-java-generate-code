@@ -147,7 +147,7 @@ public class GenerateCode {
                 }
                 System.err.println(replace);
                 //生成文件
-                TextUtil.write(filePathSave,fileName,replace);
+                TextUtil.write(filePathSave, fileName, replace);
                 //4.4  循环里面包if问题解决
 
                 //4.5 if问题单独解决
@@ -306,33 +306,48 @@ public class GenerateCode {
                 //保证管道符使用时必须在最后面缀空格符号此时，可以优先判断
                 String keyword = riff.getKeyword();
 //                System.err.println("===================="+keyword);
-                //添加管道符支持
-                String[] pipe = keyword.split("\\|");
-                if (pipe.length >= 2) {
-                    //获取属性值
-                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, pipe[0]);
-                    //执行管道方法
-                    //添加管道方法,从第一个读取管道 标识
-                    for (int i = 1; i < pipe.length; i++) {
-                        String func = pipe[i].trim();
-                        Function function = OutPipeFunction.PIPE_MAP.get(func);
-                        if (function == null) {
-                            throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
-                        } else {
-                            propertyValue2 = (String) function.apply(propertyValue2);
-                            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
-                        }
-                    }
-                } else {
-                    String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
-                }
+                tmpKeyword = getPiPeSupport(fieldInfo, tmpKeyword, riff, keyword);
             }
 //            System.err.println(tmpKeyword);
             return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
         } else {
             return tmpKeyword;
         }
+    }
+
+    /**
+     * 管道符解析支持
+     *
+     * @param info
+     * @param tmpKeyword
+     * @param riff
+     * @param keyword
+     * @return
+     * @throws IllegalAccessException
+     */
+    private static <T> String getPiPeSupport(T info, String tmpKeyword, MatchKeywordStartToEnd riff, String keyword) throws IllegalAccessException {
+        //添加管道符支持
+        String[] pipe = keyword.split("\\|");
+        if (pipe.length >= 2) {
+            //获取属性值
+            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, pipe[0]);
+            //执行管道方法
+            //添加管道方法,从第一个读取管道 标识
+            for (int i = 1; i < pipe.length; i++) {
+                String func = pipe[i].trim();
+                Function function = OutPipeFunction.PIPE_MAP.get(func);
+                if (function == null) {
+                    throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
+                } else {
+                    propertyValue2 = (String) function.apply(propertyValue2);
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
+                }
+            }
+        } else {
+            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, riff.getKeyword());
+            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
+        }
+        return tmpKeyword;
     }
 
     private static String analysisGenerateCodePath(String text) throws Exception {
@@ -381,8 +396,10 @@ public class GenerateCode {
         ) {
             //获取属性值
             String keyword = key.getKeyword();
-            //根据属性值取得解析表后的真实数值
             try {
+                //解析看是否有管道符替换
+                reader = getPiPeSupport(table, reader, key, keyword);
+                //根据属性值取得解析表后的真实数值
                 Object propertyValue = ClassUtil.getPropertyValue(table, keyword);
                 reader = reader.replace(key.getKeywordFull(), String.valueOf(propertyValue));
                 return dealbaseInfo(reader, table);

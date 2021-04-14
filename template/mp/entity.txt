@@ -8,6 +8,7 @@ package com.github.test.entity;
  * @CreateTime : !##{nowDate}##
  * @Description : 生成模板映射类- 存储模板对应关系
  * @TableName ：$!{tableName} $!{tableNote}
+ * $!{tableName|upper}
  */
 public class $!{camelCaseTableName}Model {
 
