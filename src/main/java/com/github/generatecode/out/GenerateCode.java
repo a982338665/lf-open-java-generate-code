@@ -347,8 +347,14 @@ public class GenerateCode {
         } else {
 //            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, riff.getKeyword());
             //此处keyword可能是riff.getKeyword()去掉前缀的后半部分
-            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, keyword);
-            tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
+            try {
+                String propertyValue2 = (String) ClassUtil.getPropertyValue(info, keyword);
+                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
+            } catch (Exception e) {
+                System.err.println(info + "\n" + keyword);
+                e.printStackTrace();
+                return null;
+            }
         }
         return tmpKeyword;
     }
