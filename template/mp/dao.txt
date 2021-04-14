@@ -3,7 +3,7 @@
 
 package com.github.test.dao;
 
-import com.gtihub.test.entity.$!{camelCaseTableName};
+import com.github.test.entity.$!{camelCaseTableName}Model;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
@@ -12,9 +12,9 @@ import java.util.List;
  * @URL : !##{url}##
  * @CreateTime : !##{nowDate}##
  * @Description : 生成模板映射类- 存储模板对应关系
- * @TableName ：!{tableName} !{tableNote}
+ * @TableName ：$!{tableName} !{tableNote}
  */
-public interface !{camelCaseTableName}Dao {
+public interface $!{camelCaseTableName}Dao {
 
     /**
      * 通过ID查询单条数据
@@ -22,7 +22,7 @@ public interface !{camelCaseTableName}Dao {
      * @param $!pk.name 主键
      * @return 实例对象
      */
-    !{camelCaseTableName} queryById(!{primaryKeyInfo.classTypeShort} !{primaryKeyInfo.fieldName});
+    $!{camelCaseTableName}Model queryById($!{primaryKeyInfo.classTypeShort} $!{primaryKeyInfo.fieldName});
 
     /**
      * 查询指定行数据
@@ -31,32 +31,32 @@ public interface !{camelCaseTableName}Dao {
      * @param limit 查询条数
      * @return 对象列表
      */
-    List<!{camelCaseTableName}> queryAllByLimit(@Param("offset") int offset, @Param("limit") int limit);
+    List<$!{camelCaseTableName}Model> queryAllByLimit(@Param("offset") int offset, @Param("limit") int limit);
 
 
     /**
      * 通过实体作为筛选条件查询
      *
-     * @param !{camelCaseTableName|upper} 实例对象
+     * @param $!{camelCaseTableName|upper} 实例对象
      * @return 对象列表
      */
-    List<!{camelCaseTableName}> queryAll(!{camelCaseTableName} $!{camelCaseTableName|upper});
+    List<$!{camelCaseTableName}Model> queryAll($!{camelCaseTableName}Model $!{camelCaseTableName|lower}Model);
 
     /**
      * 新增数据
      *
-     * @param $!tool.firstLowerCase($!{tableInfo.name}) 实例对象
+     * @param $!{camelCaseTableName}Model) 实例对象
      * @return 影响行数
      */
-    int insert($!{tableInfo.name} $!tool.firstLowerCase($!{tableInfo.name}));
+    int insert($!{camelCaseTableName}Model $!{camelCaseTableName|lower}Model);
 
     /**
      * 修改数据
      *
-     * @param $!tool.firstLowerCase($!{tableInfo.name}) 实例对象
+     * @param $!{camelCaseTableName|lower}Model 实例对象
      * @return 影响行数
      */
-    int update($!{tableInfo.name} $!tool.firstLowerCase($!{tableInfo.name}));
+    int update($!{camelCaseTableName}Model $!{camelCaseTableName|lower}Model);
 
     /**
      * 通过主键删除数据
@@ -64,6 +64,6 @@ public interface !{camelCaseTableName}Dao {
      * @param $!pk.name 主键
      * @return 影响行数
      */
-    int deleteById($!pk.shortType $!pk.name);
+    int deleteById($!{primaryKeyInfo.classTypeShort} $!{primaryKeyInfo.fieldName});
 
 }

@@ -24,6 +24,14 @@ public class OutPipeFunction {
             stringBuilder.append(e.substring(1));
             return stringBuilder.toString();
         };
+        Function<String, String> lower = (String e) -> {
+            StringBuilder stringBuilder = new StringBuilder();
+            //其余的首字母大写
+            stringBuilder.append(e.substring(0, 1).toLowerCase());
+            //剩余的不变
+            stringBuilder.append(e.substring(1));
+            return stringBuilder.toString();
+        };
         Function<String, String> upperAll = (String e) -> {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(e.toUpperCase());
@@ -31,6 +39,7 @@ public class OutPipeFunction {
             return stringBuilder.toString();
         };
         PIPE_MAP.put("upper", upper);
+        PIPE_MAP.put("lower", lower);
         PIPE_MAP.put("upperAll", upperAll);
     }
 }
