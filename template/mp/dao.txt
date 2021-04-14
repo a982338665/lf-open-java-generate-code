@@ -19,8 +19,8 @@ public interface $!{camelCaseTableName}Dao {
     /**
      * 通过ID查询单条数据
      *
-     * @param $!pk.name 主键
-     * @return 实例对象
+     * @param $!{primaryKeyInfo.fieldName}  主键
+     * @return $!{camelCaseTableName|lower}Model实例对象
      */
     $!{camelCaseTableName}Model queryById($!{primaryKeyInfo.classTypeShort} $!{primaryKeyInfo.fieldName});
 
@@ -37,7 +37,7 @@ public interface $!{camelCaseTableName}Dao {
     /**
      * 通过实体作为筛选条件查询
      *
-     * @param $!{camelCaseTableName|upper} 实例对象
+     * @param $!{camelCaseTableName|lower}Model 实例对象
      * @return 对象列表
      */
     List<$!{camelCaseTableName}Model> queryAll($!{camelCaseTableName}Model $!{camelCaseTableName|lower}Model);
@@ -45,7 +45,7 @@ public interface $!{camelCaseTableName}Dao {
     /**
      * 新增数据
      *
-     * @param $!{camelCaseTableName}Model) 实例对象
+     * @param $!{camelCaseTableName|lower}Model) 实例对象
      * @return 影响行数
      */
     int insert($!{camelCaseTableName}Model $!{camelCaseTableName|lower}Model);
@@ -61,7 +61,7 @@ public interface $!{camelCaseTableName}Dao {
     /**
      * 通过主键删除数据
      *
-     * @param $!pk.name 主键
+     * @param $!{primaryKeyInfo.fieldName} 主键
      * @return 影响行数
      */
     int deleteById($!{primaryKeyInfo.classTypeShort} $!{primaryKeyInfo.fieldName});

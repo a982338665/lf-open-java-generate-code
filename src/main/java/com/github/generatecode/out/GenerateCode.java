@@ -4,6 +4,7 @@ import com.github.generatecode.model.FieldInfo;
 import com.github.generatecode.model.MatchKeywordStartToEnd;
 import com.github.generatecode.model.OutTableInfo;
 import com.github.generatecode.model.TableInfo;
+import com.github.generatecode.template.BuiltInVar;
 import com.github.generatecode.template.TypeCovert;
 import com.github.generatecode.util.ClassUtil;
 import com.github.generatecode.util.RegexMatches;
@@ -344,7 +345,9 @@ public class GenerateCode {
                 }
             }
         } else {
-            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, riff.getKeyword());
+//            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, riff.getKeyword());
+            //此处keyword可能是riff.getKeyword()去掉前缀的后半部分
+            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, keyword);
             tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
         }
         return tmpKeyword;
@@ -390,23 +393,29 @@ public class GenerateCode {
 
     private static String dealbaseInfo(String reader, TableInfo table) {
         //1.查询数据库常量位置信息
-        List<MatchKeywordStartToEnd> list = RegexMatches.matchKeywordStartToEndFindoneRegex(SetGenerateConf.getDbTemplateStart()
+        MatchKeywordStartToEnd key = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(SetGenerateConf.getDbTemplateStart()
                 , SetGenerateConf.getDbTemplateEnd(), reader);
-        for (MatchKeywordStartToEnd key : list
-        ) {
-            //获取属性值
-            String keyword = key.getKeyword();
-            try {
-                //解析看是否有管道符替换
-                reader = getPiPeSupport(table, reader, key, keyword);
-                //根据属性值取得解析表后的真实数值
-                Object propertyValue = ClassUtil.getPropertyValue(table, keyword);
-                reader = reader.replace(key.getKeywordFull(), String.valueOf(propertyValue));
-                return dealbaseInfo(reader, table);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-                System.err.println("配置的模板中有未识别的参数信息：：" + key.getKeywordFull());
+        if (key == null) {
+            return reader;
+        }
+        //获取属性值
+        String keyword = key.getKeyword();
+        Object data = table;
+        try {
+            //解析primarKeyInfo
+            if (keyword.contains(StringUtils.concat(BuiltInVar.PREDIX_VAR, BuiltInVar.CONCAT_DIAN))) {
+                keyword = keyword.replace(StringUtils.concat(BuiltInVar.PREDIX_VAR, BuiltInVar.CONCAT_DIAN), "").trim();
+                data = ClassUtil.getPropertyValue(table, BuiltInVar.PREDIX_VAR);
             }
+            //解析看是否有管道符替换
+            reader = getPiPeSupport(data, reader, key, keyword);
+            //根据属性值取得解析表后的真实数值
+//            Object propertyValue = ClassUtil.getPropertyValue(table, keyword);
+//            reader = reader.replace(key.getKeywordFull(), String.valueOf(propertyValue));
+            return dealbaseInfo(reader, table);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            System.err.println("配置的模板中有未识别的参数信息：：" + key.getKeywordFull());
         }
         return reader;
     }
@@ -444,6 +453,8 @@ public class GenerateCode {
             tableInfo.setCamelCase(v.isCamelCase());
             tableInfo.setTableName(v.getTableName());
             tableInfo.setTableNote("表注释，待解析");
+            tableInfo.setPrimaryKeyInfo(new FieldInfo("id", "主键", StringUtils.getCamelCase("id", false), "bigint",
+                    TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")));
             //TODO 待替换-解析部分
             if (i % 2 == 0) {
                 tableInfo.setFieldInfos(Arrays.asList(
