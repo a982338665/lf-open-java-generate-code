@@ -32,6 +32,15 @@ public class StringUtils {
         return stringBuffer.toString();
     }
 
+    public static StringBuilder concatBuilder(String... strs) {
+        StringBuilder stringBuffer = new StringBuilder();
+        for (String str : strs
+        ) {
+            stringBuffer.append(str);
+        }
+        return stringBuffer;
+    }
+
     /**
      * 获取java.lang.String 的String
      *
