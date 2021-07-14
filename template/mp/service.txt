@@ -1,7 +1,7 @@
 #setFileName[$!{camelCaseTableName}Service.java] #!定义java文件名称!#
 #setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\service]
 
-package com.github.test.service;
+package #defaultPackage;
 
 import com.github.test.entity.$!{camelCaseTableName}Model;
 import org.apache.ibatis.annotations.Param;

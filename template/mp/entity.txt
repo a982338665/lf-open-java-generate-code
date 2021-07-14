@@ -1,7 +1,8 @@
 #setFileName[$!{camelCaseTableName}Model.java] #!定义java文件名称!#
 #setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\entity]
+#autoImport #!自动导包，指的是数据库对应的实体类的包.同时生成可用于Vo，dto，query等!#
 
-package com.github.test.entity;
+package #defaultPackage;
 /**
  * @author : !##{author}##
  * @URL : !##{url}##

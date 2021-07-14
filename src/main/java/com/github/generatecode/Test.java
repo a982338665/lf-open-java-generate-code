@@ -16,7 +16,8 @@ public class Test {
 
     public static void main(String[] args) {
         SetGenerateConf instance = SetGenerateConf.getInstance();
-        instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\mp");
+        instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\xml");
+//        instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\mp");
         SetGenerateConf.put_dynamic_map("test", "hhhhh");
         instance.setTableList(Arrays.asList(
                 new OutTableInfo()

@@ -1,0 +1,25 @@
+#setFileName[$!{camelCaseTableName}Mapper.xml] #!定义java文件名称!#
+#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\mapper]
+
+#XML  #!表示是否是XML格式内容!#
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.test.web.dao.$!{camelCaseTableName}Dao">
+
+    <resultMap id="BaseResultMap" type="com.github.test.entity.$!{camelCaseTableName}Model">
+        <!--@Table $!{tableName}-->
+        #foreach_start($column in $tableInfo.fieldInfos)
+            <result property="$[column.fieldName]" column="$[column.camelCaseFieldName]" jdbcType="$[column.fieldType]"/>
+        #foreach_end
+    </resultMap>
+
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+        $!{allSqlColumn}
+        from $!{tableName}
+        where $!{primaryKeyInfo.fieldName} = #{$!{primaryKeyInfo.camelCaseFieldName}}
+    </select>
+</mapper>

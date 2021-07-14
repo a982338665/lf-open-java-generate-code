@@ -1,12 +1,12 @@
 #setFileName[$!{camelCaseTableName}Controller.java] #!定义java文件名称!#
 #setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\controller]
-
-package com.github.test.controller;
+#XML
+package #defaultPackage;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.github.test.entity.$!{camelCaseTableName}Model;
-import com.github.test.dao.$!{camelCaseTableName}Dao;
+import com.github.test.web.dao.$!{camelCaseTableName}Dao;
 import com.github.test.service.$!{camelCaseTableName}Service;
 import com.github.test.service.impl.$!{camelCaseTableName}ServiceImpl;
 import org.springframework.stereotype.Service;

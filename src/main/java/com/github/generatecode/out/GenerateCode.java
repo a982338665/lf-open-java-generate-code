@@ -14,6 +14,8 @@ import com.github.generatecode.util.TextUtil;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.github.generatecode.constant.Constant.*;
+
 /**
  * @author : Mr huangye
  * @URL : CSDN 皇夜_
@@ -93,22 +95,26 @@ public class GenerateCode {
         //解析数据表信息并赋值list
 //        List<TableInfo> tableInfoList =  new ArrayList<>();
         List<TableInfo> tableInfoList = getTableInfoMock(tableList);
+        List<String> list = new ArrayList<>();
         for (String path : allFile
         ) {
             //读取模板信息 - 并且替换相关表结构
             final String[] reader = {TextUtil.readerStr(path)};
             //1.去掉注释生成---指模板中的注释而非代码注释
             removeNote(reader);
-            String text = reader[0];
+            //===================================================
+            //通过package解析  文件存储位置，实际使用setFileName即可确定位置
+//            String text = reader[0];
             //2.解析生成文件的路径
-            String filePath;
-            try {
-                filePath = analysisGenerateCodePath(text);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-            System.err.println(filePath);
+//            String filePath;
+//            try {
+//                filePath = analysisGenerateCodePath(text);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return;
+//            }
+//            System.err.println("//2.解析生成文件的路径::::::"+filePath);
+            //===================================================
             //3.基础常量替换,替换reader中的常量定义数据 => 指可以修改的自定义规则
             tHbaseVar(reader);
             //4.依据不同的表生成不同的数据文件
@@ -117,53 +123,126 @@ public class GenerateCode {
                 String coperReader = reader[0];
                 //4.1.数据库解析常量替换，替换基本属性信息
                 coperReader = dealbaseInfo(coperReader, table);
-                //4.2 针对每个表都有不一样的文件名，需要将文本文件拆分为两部分 2.1 文件名 2.2 文件内容
-                String[] packages = coperReader.split("package ");
-                //获取文件设置信息
-                String filesInfo = packages[0].trim();
-                String fileName = dealbaseInfoStartAndEnd(filesInfo, table, "#setFileName[", "]");
-                String filePathSave = dealbaseInfoStartAndEnd(filesInfo, table, "#setFilePath[", "]");
 
-                System.err.println(fileName + "=========================" + filePathSave);
-                //匹配文件存储路径
-
-                String aPackage = packages[1];
-                String content = StringUtils.concat("package ", aPackage);
-//                System.err.println(fileName + "=========\n" + content);
-                //4.3 循环问题解决
-                String replace = getForeachMuch(table, content);
-                //4.4 自动导包问题处理
-                for (int i = 0; i < table.getFieldInfos().size(); i++) {
-                    FieldInfo fieldInfo = table.getFieldInfos().get(i);
-                    //匹配到数据后自动导包
-                    MatchKeywordStartToEnd autoImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(StringUtils.concat("import ", fieldInfo.getClassType()), ";", replace);
-                    if (autoImport == null) {
-                        //没有该包的数据，需要匹配package导入
-                        MatchKeywordStartToEnd packImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter("package ", ";", replace);
-                        //前面已经校验过肯定有package
-                        replace = replace.replace(packImport.getKeywordFull(), StringUtils.concat(packImport.getKeywordFull(), "\n",
-                                "import ", fieldInfo.getClassType(), ";"
-                        ));
-                    }
+                //优先判断是否为xml，若是
+                String[] isXML = coperReader.split(IS_XML_VAR);
+                if (isXML.length == 2) {
+                    //xml格式
+                    generateXML(table, coperReader);
+                } else if (isXML.length < 2) {
+                    //非xml格式
+                    generateClass(table, coperReader);
+                } else {
+                    //xml格式错误
+                    String error = "XML模板格式错误：" + path + "|" + table.getTableName();
+                    System.err.println(error);
+                    list.add(error);
                 }
-                System.err.println(replace);
-                //生成文件
-                TextUtil.write(filePathSave, fileName, replace);
-                //4.4  循环里面包if问题解决
-
-                //4.5 if问题单独解决
-
             }
+            list.forEach(System.err::println);
         }
     }
 
+    private static void generateClass(TableInfo table, String coperReader) {
+        //4.2 针对每个表都有不一样的文件名，需要将文本文件拆分为两部分 2.1 文件名 2.2 文件内容
+        String[] packages = coperReader.split(PACKAGE_VAR);
+        //获取文件设置信息
+        String filesInfo = packages[0].trim();
+        String fileName = dealbaseInfoStartAndEnd(filesInfo, table, SETFILENAME_START_VAR, SETFILENAME_END_VAR);
+        String filePathSave = dealbaseInfoStartAndEnd(filesInfo, table, SETFILEPATH_START_VAR, SETFILEPATH_END_VAR);
+        boolean isAutoImport = filesInfo.contains(AUTOIMPORT_VAR);
+        MatchKeywordStartToEnd packageAnaylsekey = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(PACKNAME_FORM_PATH_START_VAR, PACKNAME_FORM_PATH_END_VAR, filePathSave);
+        String convertPackage = StringUtils.convertPackage(filePathSave.substring(packageAnaylsekey.getEnd()));
+        System.err.println("由路径解析出了包名==============" + convertPackage);
+        System.err.println(fileName + "=========================" + filePathSave);
+        //匹配文件存储路径
+
+        String packName = StringUtils.concat(PACKNAME_CONTENT_START_VAR, convertPackage, PACKNAME_CONTENT_END_VAR);
+
+        String aPackage = packages[1];
+        String content = StringUtils.concat(packName, aPackage);
+//                System.err.println(fileName + "=========\n" + content);
+        //4.3 递归循环问题解决
+        String replace = getForeachMuch(table, content);
+
+        if (isAutoImport) {
+            //4.4 自动导包问题处理
+            for (int i = 0; i < table.getFieldInfos().size(); i++) {
+                FieldInfo fieldInfo = table.getFieldInfos().get(i);
+                //匹配到数据后自动导包
+                MatchKeywordStartToEnd autoImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(StringUtils.concat("import ", fieldInfo.getClassType()), ";", replace);
+                if (autoImport == null) {
+                    //没有该包的数据，需要匹配package导入
+                    MatchKeywordStartToEnd packImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter("package ", ";", replace);
+                    //前面已经校验过肯定有package
+                    replace = replace.replace(packImport.getKeywordFull(), StringUtils.concat(packImport.getKeywordFull(), "\n",
+                            "import ", fieldInfo.getClassType(), ";"
+                    ));
+                }
+            }
+        }
+        System.err.println(replace);
+        //生成文件
+        TextUtil.write(filePathSave, fileName, replace);
+        //4.4  循环里面包if问题解决
+
+        //4.5 if问题单独解决
+    }
+
+    private static void generateXML(TableInfo table, String coperReader) {
+        //4.2 针对每个表都有不一样的文件名，需要将文本文件拆分为两部分 2.1 文件名 2.2 文件内容
+        String[] packages = coperReader.split(IS_XML_VAR);
+        //获取文件设置信息
+        String filesInfo = packages[0].trim();
+        //xml名称
+        String fileName = dealbaseInfoStartAndEnd(filesInfo, table, SETFILENAME_START_VAR, SETFILENAME_END_VAR);
+        //xml位置
+        String filePathSave = dealbaseInfoStartAndEnd(filesInfo, table, SETFILEPATH_START_VAR, SETFILEPATH_END_VAR);
+        MatchKeywordStartToEnd packageAnaylsekey = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(PACKNAME_FORM_PATH_START_VAR, PACKNAME_FORM_PATH_END_VAR, filePathSave);
+        //解析出存储包名，由于是xml，所以不需要包名，直接在namespace配置dao即可
+//        String convertPackage = StringUtils.convertPackage(filePathSave.substring(packageAnaylsekey.getEnd()));
+//        System.err.println("由路径解析出了包名==============" + convertPackage);
+//        System.err.println(fileName + "=========================" + filePathSave);
+//        //匹配文件存储路径
+//
+//        String packName = StringUtils.concat(PACKNAME_CONTENT_START_VAR, convertPackage, PACKNAME_CONTENT_END_VAR);
+
+        String content = packages[1];
+//        String content = StringUtils.concat(packName, aPackage);
+//                System.err.println(fileName + "=========\n" + content);
+        //4.3 递归循环问题解决
+        String replace = getForeachMuch(table, content).trim();
+
+        //4.4 自动导包问题处理
+//        for (int i = 0; i < table.getFieldInfos().size(); i++) {
+//            FieldInfo fieldInfo = table.getFieldInfos().get(i);
+//            //匹配到数据后自动导包
+//            MatchKeywordStartToEnd autoImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(StringUtils.concat("import ", fieldInfo.getClassType()), ";", replace);
+//            if (autoImport == null) {
+//                //没有该包的数据，需要匹配package导入
+//                MatchKeywordStartToEnd packImport = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter("package ", ";", replace);
+//                //前面已经校验过肯定有package
+//                replace = replace.replace(packImport.getKeywordFull(), StringUtils.concat(packImport.getKeywordFull(), "\n",
+//                        "import ", fieldInfo.getClassType(), ";"
+//                ));
+//            }
+//        }
+        System.err.println(replace);
+        //生成文件
+        TextUtil.write(filePathSave, fileName, replace);
+        //4.4  循环里面包if问题解决
+
+        //4.5 if问题单独解决
+    }
+
     private static String getForeachMuch(TableInfo table, String content) {
-        MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("#foreach_start", "#foreach_end", content);
+        MatchKeywordStartToEnd e = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(FOREACH_START_VAR, FOREACH_END_VAR, content);
         if (e != null) {
             Map<String, Object> analyseArrayAndTmpValMap = analyseArrayAndTmpVal(e, table);
 //                String tmpVarOut = (String) analyseArrayAndTmpValMap.get("tmpVarOut");
             String toReplace = (String) analyseArrayAndTmpValMap.get("toReplace");
 //                List<FieldInfo> fieldInfos = (List<FieldInfo>) analyseArrayAndTmpValMap.get("fieldInfos");
+            //将foreach包裹的内容整体替换为已经解析后的内容
             content = content.replace(e.getKeywordFull(), toReplace);
             return getForeachMuch(table, content);
         } else {
@@ -190,11 +269,11 @@ public class GenerateCode {
         if (e != null) {
             String keyword = e.getKeyword();
             //解析foreach后面的括号
-            MatchKeywordStartToEnd r = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1("(", ")", keyword);
+            MatchKeywordStartToEnd r = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(FOREACH_START_KH_VAR, FOREACH_END_KH_VAR, keyword);
             if (r != null) {
                 //获取括号内容
                 String kuohao = r.getKeyword();
-                String[] ins = kuohao.split(" in ");
+                String[] ins = kuohao.split(FOREACH_END_IN_VAR);
                 if (ins.length != 2) {
                     try {
                         throw new Exception("#foreach 后面的格式不规范！");
@@ -221,23 +300,30 @@ public class GenerateCode {
             //解析完成后，需要将foreach中（）及内容替换为空
             keyword = keyword.replace(r.getKeywordFull(), "");
             //匹配处理for循环中的对象数据，匹配以该值开头,以.结束的数据
-            MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", keyword);
+            MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$[", tmpVarOut, "."), "]", keyword);
             //找到替换的对应关系，片段循环
 //            System.err.println("keyword===" + keyword);
 //            Set<String>  autoList = new HashSet<>();
             //首次匹配需要生成foreach循环文本 ， 第二次开始要进行整行文本准备
             if (rif != null) {
 //                System.err.println(rif.getKeyword());
-                for (FieldInfo fieldInfo : fieldInfos) {
+                for (int i = 0; i < fieldInfos.size(); i++) {
+                    FieldInfo fieldInfo = fieldInfos.get(i);
                     try {
                         String tmpKeyword = keyword;
 //                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
 //                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
 //                        System.err.println(tmpKeyword);
-                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
+                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim()+"\n        ";
 //                        System.err.println(result);
                         toReplace = StringUtils.concat(toReplace, result);
-//                        System.err.println(s);
+//                        if (i == 0) {
+//                            toReplace = StringUtils.concat(toReplace, result,"\n");
+//                        } else {
+//                        }
+                        System.err.println(toReplace);
+                        System.err.println(toReplace);
+
                     } catch (IllegalAccessException ex) {
                         System.err.println("获取字段属性报错：" + keyword + "里面的" + rif.getKeyword());
                         ex.printStackTrace();
@@ -245,7 +331,7 @@ public class GenerateCode {
                 }
             }
 //            System.err.println();
-            baseInfo.put("toReplace", toReplace);
+            baseInfo.put("toReplace", toReplace.trim());
 //            baseInfo.put("autoImport",);
 
 
@@ -293,7 +379,7 @@ public class GenerateCode {
     }
 
     private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
-        MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$", tmpVarOut, "."), " ", tmpKeyword);
+        MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$[", tmpVarOut, "."), "]", tmpKeyword);
         if (riff != null) {
 //            System.err.println("====================" + riff.getKeyword());
             //特殊的以;,(结尾的需要去掉
@@ -359,33 +445,34 @@ public class GenerateCode {
         return tmpKeyword;
     }
 
-    private static String analysisGenerateCodePath(String text) throws Exception {
-        SetGenerateConf instance = SetGenerateConf.getInstance();
-        String[] packages = text.split("package");
-        String filePath = "";
-        if (packages.length < 2) {
-
-            try {
-                throw new Exception("首行缺少文件名申明！！");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-//                String fileName = packages[0];
-//                System.err.println("fileName==========" + fileName);
-            String aPackage = packages[1];
-            String[] packer = aPackage.split("\n");
-            String packagePath = packer[0];
-            packagePath = packagePath.replace(";", "").trim();
-            filePath = instance.getGenerateCodeUrl() + StringUtils.convertPath(packagePath);
-//                System.err.println(fileName + "=========" + filePath);
-//                System.err.println(new File(filePath).getAbsolutePath());
-        }
-        if (StringUtils.isEmpty(filePath)) {
-            throw new Exception("代码生成位置解析失败！" + filePath);
-        }
-        return filePath;
-    }
+    //通过package 解析包存储位置
+//    private static String analysisGenerateCodePath(String text) throws Exception {
+//        SetGenerateConf instance = SetGenerateConf.getInstance();
+//        String[] packages = text.split("package ");
+//        String filePath = "";
+//        if (packages.length < 2) {
+//
+//            try {
+//                throw new Exception("首行缺少文件名申明！！");
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } else {
+////                String fileName = packages[0];
+////                System.err.println("fileName==========" + fileName);
+//            String aPackage = packages[1];
+//            String[] packer = aPackage.split("\n");
+//            String packagePath = packer[0];
+//            packagePath = packagePath.replace(";", "").trim();
+//            filePath = instance.getGenerateCodeUrl() + StringUtils.convertPath(packagePath);
+////                System.err.println(fileName + "=========" + filePath);
+////                System.err.println(new File(filePath).getAbsolutePath());
+//        }
+//        if (StringUtils.isEmpty(filePath)) {
+//            throw new Exception("代码生成位置解析失败！" + filePath);
+//        }
+//        return filePath;
+//    }
 
     private static void removeNote(String[] reader) {
         List<MatchKeywordStartToEnd> list = RegexMatches.matchKeywordStartToEnd(RegexMatches.escapeExprSpecialWord(SetGenerateConf.getNoteTemplateStart())
@@ -461,6 +548,7 @@ public class GenerateCode {
             tableInfo.setTableNote("表注释，待解析");
             tableInfo.setPrimaryKeyInfo(new FieldInfo("id", "主键", StringUtils.getCamelCase("id", false), "bigint",
                     TypeCovert.getClassType("bigint"), TypeCovert.getClassTypeShort("bigint")));
+            tableInfo.setAllSqlColumn("id,name,product_type");
             //TODO 待替换-解析部分
             if (i % 2 == 0) {
                 tableInfo.setFieldInfos(Arrays.asList(

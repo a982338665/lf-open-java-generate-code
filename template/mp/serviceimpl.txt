@@ -1,10 +1,10 @@
 #setFileName[$!{camelCaseTableName}ServiceImpl.java] #!定义java文件名称!#
 #setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\service\impl]
 
-package com.github.test.service.impl;
+package #defaultPackage;
 
 import com.github.test.entity.$!{camelCaseTableName}Model;
-import com.github.test.dao.$!{camelCaseTableName}Dao;
+import com.github.test.web.dao.$!{camelCaseTableName}Dao;
 import com.github.test.service.$!{camelCaseTableName}Service;
 import org.springframework.stereotype.Service;
 

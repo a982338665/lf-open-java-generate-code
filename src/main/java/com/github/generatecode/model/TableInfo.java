@@ -35,18 +35,14 @@ public class TableInfo {
     private FieldInfo primaryKeyInfo;
 
     /**
+     * sql的所有列值
+     */
+    private String allSqlColumn;
+
+    /**
      * 字段对应值
      */
     private List<FieldInfo> fieldInfos;
-
-
-    public FieldInfo getPrimaryKeyInfo() {
-        return primaryKeyInfo;
-    }
-
-    public void setPrimaryKeyInfo(FieldInfo primaryKeyInfo) {
-        this.primaryKeyInfo = primaryKeyInfo;
-    }
 
     public String getTableName() {
         return tableName;
@@ -80,6 +76,22 @@ public class TableInfo {
         this.camelCase = camelCase;
     }
 
+    public FieldInfo getPrimaryKeyInfo() {
+        return primaryKeyInfo;
+    }
+
+    public void setPrimaryKeyInfo(FieldInfo primaryKeyInfo) {
+        this.primaryKeyInfo = primaryKeyInfo;
+    }
+
+    public String getAllSqlColumn() {
+        return allSqlColumn;
+    }
+
+    public void setAllSqlColumn(String allSqlColumn) {
+        this.allSqlColumn = allSqlColumn;
+    }
+
     public List<FieldInfo> getFieldInfos() {
         return fieldInfos;
     }
@@ -95,6 +107,8 @@ public class TableInfo {
                 ", tableNote='" + tableNote + '\'' +
                 ", camelCaseTableName='" + camelCaseTableName + '\'' +
                 ", camelCase=" + camelCase +
+                ", primaryKeyInfo=" + primaryKeyInfo +
+                ", allSqlColumn='" + allSqlColumn + '\'' +
                 ", fieldInfos=" + fieldInfos +
                 '}';
     }

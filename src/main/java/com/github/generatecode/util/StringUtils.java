@@ -13,6 +13,9 @@ public class StringUtils {
     public static String convertPath(String str) {
         return concat("\\", str.replace(".", "\\"));
     }
+    public static String convertPackage(String str) {
+        return str.replace("\\", ".");
+    }
 
     public static String concatSync(String... strs) {
         StringBuffer stringBuffer = new StringBuffer();
