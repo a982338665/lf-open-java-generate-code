@@ -20,8 +20,18 @@ public class Test {
         instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\mp");
         SetGenerateConf.put_dynamic_map("test", "hhhhh");
         instance.setTableList(Arrays.asList(
-                new OutTableInfo()
+                new OutTableInfo("test")
         ));
         GenerateCode.generateCode();
+
+//        String url = SetGenerateConf.getInstance().getUrl();
+//        String[] split = url.split("\\?");
+//        if(split.length==2){
+//            String urls = split[0];
+//            int i = urls.lastIndexOf("/");
+////            urls.la
+//            String substring = urls.substring(i+1);
+//            System.err.println(substring);
+//        }
     }
 }

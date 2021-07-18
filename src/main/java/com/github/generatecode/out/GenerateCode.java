@@ -6,10 +6,7 @@ import com.github.generatecode.model.OutTableInfo;
 import com.github.generatecode.model.TableInfo;
 import com.github.generatecode.template.BuiltInVar;
 import com.github.generatecode.template.TypeCovert;
-import com.github.generatecode.util.ClassUtil;
-import com.github.generatecode.util.RegexMatches;
-import com.github.generatecode.util.StringUtils;
-import com.github.generatecode.util.TextUtil;
+import com.github.generatecode.util.*;
 
 import java.util.*;
 import java.util.function.Function;
@@ -91,10 +88,12 @@ public class GenerateCode {
 
         //获取需要生成的表结构信息模拟数据
 //        List<OutTableInfo> tableList = instance.getTableList();
-        List<OutTableInfo> tableList = getTableOutInfoMock();
+//        List<OutTableInfo> tableList = getTableOutInfoMock();
+        List<OutTableInfo> tableList = getTableOutInfo();
         //解析数据表信息并赋值list
 //        List<TableInfo> tableInfoList =  new ArrayList<>();
-        List<TableInfo> tableInfoList = getTableInfoMock(tableList);
+//        List<TableInfo> tableInfoList = getTableInfoMock(tableList);
+        List<TableInfo> tableInfoList = getTableInfo(tableList);
         List<String> list = new ArrayList<>();
         for (String path : allFile
         ) {
@@ -314,7 +313,7 @@ public class GenerateCode {
 //                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
 //                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
 //                        System.err.println(tmpKeyword);
-                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim()+"\n        ";
+                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
 //                        System.err.println(result);
                         toReplace = StringUtils.concat(toReplace, result);
 //                        if (i == 0) {
@@ -574,6 +573,83 @@ public class GenerateCode {
     }
 
     /**
+     * 获取tableInfo的模拟数据
+     *
+     * @param tableList
+     */
+    public static List<TableInfo> getTableInfo(List<OutTableInfo> tableList) {
+        //假设每个表结构数据都解析为
+        List<TableInfo> list = new ArrayList<>();
+        for (int i = 0; i < tableList.size(); i++) {
+            OutTableInfo v = tableList.get(i);
+            TableInfo tableInfo = new TableInfo();
+            String prefix = v.getPrefix();
+            if (StringUtils.isEmpty(prefix)) {
+                //判断是否驼峰命名
+                tableInfo.setCamelCaseTableName(StringUtils.getCamelCase(v.getTableName(), v.isCamelCase()));
+            } else {
+                //不是空先截取前缀,主要是看驼峰命名中是否为 截取出前缀
+                String trim = v.getTableName().replace(prefix, "").trim();
+                tableInfo.setCamelCaseTableName(StringUtils.getCamelCase(trim, v.isCamelCase()));
+            }
+            tableInfo.setCamelCase(v.isCamelCase());
+            tableInfo.setTableName(v.getTableName());
+
+            String dataBase = null;
+            String url = SetGenerateConf.getInstance().getUrl();
+            String[] split = url.split("\\?");
+            if (split.length == 2) {
+                String urls = split[0];
+                int j = urls.lastIndexOf("/");
+                dataBase = urls.substring(j + 1);
+            }
+
+
+            //jdbc解析  字段
+            List<Map<String, Object>> dataTable = JDBCUtils.getData(
+                    "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '" + dataBase + "' AND TABLE_NAME = '" + v.getTableName() + "'");
+            //获取表注释
+            tableInfo.setTableNote((String) dataTable.get(0).get("TABLE_COMMENT"));
+            //jdbc解析  字段
+            List<Map<String, Object>> dataColume = JDBCUtils.getData(
+                    "SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '" + dataBase + "' AND TABLE_NAME = '" + v.getTableName() + "'");
+            StringBuilder strs = new StringBuilder();
+
+            List<FieldInfo> fieldInfos = new ArrayList<>();
+            for (int i1 = 0; i1 < dataColume.size(); i1++) {
+                Map<String, Object> e = dataColume.get(i1);
+                //拼接全字段
+                if (i1 == dataColume.size() - 1) {
+                    strs.append(e.get("COLUMN_NAME"));
+                    //最后一次set值
+                    tableInfo.setAllSqlColumn(strs.toString());
+                } else {
+                    strs.append(e.get("COLUMN_NAME"));
+                    strs.append(",");
+                }
+
+                String fieldName = (String) e.get("COLUMN_NAME");
+                String fieldNote = (String) e.get("COLUMN_COMMENT");
+                String fieldType = (String) e.get("COLUMN_TYPE");
+                String fieldPriKey = (String) e.get("COLUMN_KEY");
+                if ("PRI".equals(fieldPriKey)) {
+                    //添加主键字段信息
+                    tableInfo.setPrimaryKeyInfo(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
+                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType)));
+                }
+
+                //字段信息
+                fieldInfos.add(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
+                        TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType)));
+            }
+            tableInfo.setFieldInfos(fieldInfos);
+            list.add(tableInfo);
+        }
+        list.forEach(System.err::println);
+        return list;
+    }
+
+    /**
      * 获取tableInfo的表结构模拟数据
      */
     public static List<OutTableInfo> getTableOutInfoMock() {
@@ -584,6 +660,14 @@ public class GenerateCode {
 
         );
         // t_s_user
+        return list;
+    }
+
+    /**
+     * 获取tableInfo的表结构模拟数据
+     */
+    public static List<OutTableInfo> getTableOutInfo() {
+        List<OutTableInfo> list = SetGenerateConf.getInstance().getTableList();
         return list;
     }
 }

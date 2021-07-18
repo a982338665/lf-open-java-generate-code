@@ -29,6 +29,8 @@ public class TypeCovert {
         typeMapping.put("decimal(\\(\\d+,\\d+\\))?","java.math.BigDecimal");
         typeMapping.put("integer","java.lang.Integer");
         typeMapping.put("int(\\(\\d+\\))?","java.lang.Integer");
+        typeMapping.put("float(\\(\\d+\\))?","java.math.BigDecimal");
+        typeMapping.put("double(\\(\\d+\\))?","java.math.BigDecimal");
         typeMapping.put("int4","java.lang.Integer");
         typeMapping.put("int8","java.lang.Long");
         typeMapping.put("bigint(\\(\\d+\\))?","java.lang.Long");

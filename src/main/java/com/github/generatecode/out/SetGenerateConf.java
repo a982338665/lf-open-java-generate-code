@@ -20,6 +20,11 @@ public class SetGenerateConf {
 
     private static SetGenerateConf setGenerateConf = new SetGenerateConf();
 
+    private String driver = "com.mysql.cj.jdbc.Driver";
+    private String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC";
+    private String user = "root";
+    private String password = "root123";
+
     private SetGenerateConf() {
 
     }
@@ -47,6 +52,7 @@ public class SetGenerateConf {
     private String templateUrl = "./";
     /**
      * 生成代码的默认父亲路径：设置为null时，表示无父路径，此时直接读取子路径作为生成路径
+     *
      * @TODO -> 不便弃用，原计划作为组件引入，需要自动获取当前项目路径或者填写绝对路径
      */
     private String generateCodeUrl = "src/main/java";
@@ -65,7 +71,7 @@ public class SetGenerateConf {
 
     /**
      * 数据库解析后生成变量的模板信息前缀
-     * */
+     */
     private static String dbTemplateStart = "$!{";
     /**
      * 数据库解析后生成变量的模板信息后缀
@@ -73,7 +79,7 @@ public class SetGenerateConf {
     private static String dbTemplateEnd = "}";
     /**
      * 数据库解析后生成变量的模板信息注释前缀
-     * */
+     */
     private static String noteTemplateStart = "#!";
     /**
      * 数据库解析后生成变量的模板信息注释后缀
@@ -165,5 +171,37 @@ public class SetGenerateConf {
 
     public static void setDbTemplateEnd(String dbTemplateEnd) {
         SetGenerateConf.dbTemplateEnd = dbTemplateEnd;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
