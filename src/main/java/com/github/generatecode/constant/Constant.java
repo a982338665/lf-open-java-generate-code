@@ -53,6 +53,13 @@ public interface Constant {
     String FOREACH_END_IN_VAR = " in ";
 
 
+    String IF_START_VAR = "#if";
+    String IF_END_VAR = "#end";
+    String IF_START_KH_VAR = "[";
+    String IF_END_KH_VAR = "]";
+    String IF_END_IN_VAR = " in ";
+
+
     /**通过此来判断其是否为XML，XML为另一种格式解析*/
     String IS_XML_VAR = "#XML";
 

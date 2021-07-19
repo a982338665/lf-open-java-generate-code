@@ -10,7 +10,7 @@
     <resultMap id="BaseResultMap" type="com.github.test.entity.$!{camelCaseTableName}Model">
         <!--@Table $!{tableName}-->
         #foreach_start($column in $tableInfo.fieldInfos)
-            <result property="$[column.fieldName]" column="$[column.camelCaseFieldName]" jdbcType="$[column.fieldType]"/>
+            <result property="$[column.fieldName]" column="$[column.camelCaseFieldName]" jdbcType="$[column.fieldTypeNoNum]"/>
         #foreach_end
     </resultMap>
 
@@ -22,4 +22,19 @@
         from $!{tableName}
         where $!{primaryKeyInfo.fieldName} = #{$!{primaryKeyInfo.camelCaseFieldName}}
     </select>
+
+     <!--if - end else查询-->
+     <select id="queryById2" resultMap="BaseResultMap">
+         select
+         $!{allSqlColumn}
+         from $!{tableName}
+         <where>
+         #foreach_start($column in $tableInfo.fieldInfos)
+            <if test="$[column.camelCaseFieldName] != null #if($[column.classTypeShort|equalsString]) and $[column.camelCaseFieldName] != ''#end">
+                and $[column.fieldName] = #{$[column.camelCaseFieldName]}
+            </if>
+         #foreach_end
+         </where>
+
+     </select>
 </mapper>

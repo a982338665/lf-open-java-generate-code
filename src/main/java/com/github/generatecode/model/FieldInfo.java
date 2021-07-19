@@ -25,6 +25,10 @@ public class FieldInfo {
      */
     private String fieldType;
     /**
+     * 数据库字段的类型 - 无数字
+     */
+    private String fieldTypeNoNum;
+    /**
      * 类属性字段的类型
      */
     private String classType;
@@ -50,6 +54,16 @@ public class FieldInfo {
         this.classType = classType;
         this.classTypeShort = classTypeShort;
     }
+    public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType, String classType, String classTypeShort,String fieldTypeNoNum) {
+        this.fieldName = fieldName;
+        this.fieldNote = fieldNote;
+        this.camelCaseFieldName = camelCaseFieldName;
+        this.fieldType = fieldType;
+        this.classType = classType;
+        this.classTypeShort = classTypeShort;
+        this.fieldTypeNoNum = fieldTypeNoNum;
+    }
+
 
     public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType) {
         this.fieldName = fieldName;
@@ -117,6 +131,14 @@ public class FieldInfo {
         this.primaryKey = primaryKey;
     }
 
+    public String getFieldTypeNoNum() {
+        return fieldTypeNoNum;
+    }
+
+    public void setFieldTypeNoNum(String fieldTypeNoNum) {
+        this.fieldTypeNoNum = fieldTypeNoNum;
+    }
+
     @Override
     public String toString() {
         return "FieldInfo{" +
@@ -124,6 +146,7 @@ public class FieldInfo {
                 ", fieldNote='" + fieldNote + '\'' +
                 ", camelCaseFieldName='" + camelCaseFieldName + '\'' +
                 ", fieldType='" + fieldType + '\'' +
+                ", fieldTypeNoNum='" + fieldTypeNoNum + '\'' +
                 ", classType='" + classType + '\'' +
                 ", classTypeShort='" + classTypeShort + '\'' +
                 ", primaryKey=" + primaryKey +

@@ -38,8 +38,13 @@ public class OutPipeFunction {
             //剩余的不变
             return stringBuilder.toString();
         };
+        //判断 传过来的内容是否等于 String,用于xml中foreach的判断
+        Function<String, String> equalsString = (String e) -> {
+            return "String".equals(e) ? "true" : "false";
+        };
         PIPE_MAP.put("upper", upper);
         PIPE_MAP.put("lower", lower);
         PIPE_MAP.put("upperAll", upperAll);
+        PIPE_MAP.put("equalsString", equalsString);
     }
 }

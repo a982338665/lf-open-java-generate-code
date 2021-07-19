@@ -7,6 +7,7 @@ import com.github.generatecode.model.TableInfo;
 import com.github.generatecode.template.BuiltInVar;
 import com.github.generatecode.template.TypeCovert;
 import com.github.generatecode.util.*;
+import com.sun.org.apache.bcel.internal.generic.IFEQ;
 
 import java.util.*;
 import java.util.function.Function;
@@ -200,7 +201,7 @@ public class GenerateCode {
         String fileName = dealbaseInfoStartAndEnd(filesInfo, table, SETFILENAME_START_VAR, SETFILENAME_END_VAR);
         //xml位置
         String filePathSave = dealbaseInfoStartAndEnd(filesInfo, table, SETFILEPATH_START_VAR, SETFILEPATH_END_VAR);
-        MatchKeywordStartToEnd packageAnaylsekey = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(PACKNAME_FORM_PATH_START_VAR, PACKNAME_FORM_PATH_END_VAR, filePathSave);
+//        MatchKeywordStartToEnd packageAnaylsekey = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1FromLetter(PACKNAME_FORM_PATH_START_VAR, PACKNAME_FORM_PATH_END_VAR, filePathSave);
         //解析出存储包名，由于是xml，所以不需要包名，直接在namespace配置dao即可
 //        String convertPackage = StringUtils.convertPackage(filePathSave.substring(packageAnaylsekey.getEnd()));
 //        System.err.println("由路径解析出了包名==============" + convertPackage);
@@ -214,6 +215,9 @@ public class GenerateCode {
 //                System.err.println(fileName + "=========\n" + content);
         //4.3 递归循环问题解决
         String replace = getForeachMuch(table, content).trim();
+
+        //4.4 递归if问题解决
+//        String replace = getForeachMuch(table, content).trim();
 
         //4.4 自动导包问题处理
 //        for (int i = 0; i < table.getFieldInfos().size(); i++) {
@@ -301,6 +305,16 @@ public class GenerateCode {
             }
             //解析完成后，需要将foreach中（）及内容替换为空
             keyword = keyword.replace(r.getKeywordFull(), "");
+//            //优先匹配#if操作
+//            MatchKeywordStartToEnd ifr = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(IF_START_VAR, IF_END_VAR, keyword);
+//            //如果foreach里面包含if语句
+////            if (ifr != null) {
+////                //取出if中括号里面的数据
+////                MatchKeywordStartToEnd ifrr = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(IF_START_KH_VAR, IF_END_KH_VAR, ifr.getKeyword());
+////                //判断
+////                //
+////            }
+
             //匹配处理for循环中的对象数据，匹配以该值开头,以.结束的数据
             MatchKeywordStartToEnd rif = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$[", tmpVarOut, "."), "]", keyword);
             //找到替换的对应关系，片段循环
@@ -315,23 +329,28 @@ public class GenerateCode {
                         String tmpKeyword = keyword;
 //                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
 //                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
-//                        System.err.println(tmpKeyword);
+                        System.err.println(tmpKeyword);
 //                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
                         String result = !isXmlVal ? anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword) : anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
-//                        System.err.println(result);
-//                        System.err.println("--------------");
+                        System.err.println(result);
+                        System.err.println("--------------");
                         toReplace = StringUtils.concat(toReplace, result);
 //                        if (i == 0) {
 //                            toReplace = StringUtils.concat(toReplace, result,"\n");
 //                        } else {
 //                        }
-//                        System.err.println(toReplace);
+                        System.err.println(toReplace);
                     } catch (IllegalAccessException ex) {
                         System.err.println("获取字段属性报错：" + keyword + "里面的" + rif.getKeyword());
                         ex.printStackTrace();
                     }
                 }
             }
+
+
+            //匹配处理for循环中的IF对象数据
+            toReplace = dealIftrue(toReplace);
+            toReplace = dealIffalse(toReplace);
 //            System.err.println();
 //            baseInfo.put("toReplace", toReplace.trim());
             baseInfo.put("toReplace", !isXmlVal ? toReplace : toReplace.trim());
@@ -371,6 +390,25 @@ public class GenerateCode {
         return baseInfo;
     }
 
+    private static String dealIftrue(String toReplace) {
+        MatchKeywordStartToEnd riftrue = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1Specal("#if(true)", "#end", toReplace);
+        if(riftrue!=null){
+            toReplace = toReplace.replace(riftrue.getKeywordFull(), riftrue.getKeyword());
+        }else{
+            return toReplace;
+        }
+        return dealIftrue(toReplace);
+    }
+    private static String dealIffalse(String toReplace) {
+        MatchKeywordStartToEnd rifalse = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1Specal("#if(false)", "#end", toReplace);
+        if(rifalse!=null){
+            toReplace = toReplace.replace(rifalse.getKeywordFull(), "");
+        }else{
+            return toReplace;
+        }
+        return dealIffalse(toReplace);
+    }
+
     private static String getOtherSplit(String keyword) {
         List<String> list = Arrays.asList(";", ")", "()");
         for (String s : list) {
@@ -379,30 +417,6 @@ public class GenerateCode {
             }
         }
         return null;
-    }
-
-    private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
-        MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$[", tmpVarOut, "."), "]", tmpKeyword);
-        if (riff != null) {
-//            System.err.println("====================" + riff.getKeyword());
-            //特殊的以;,(结尾的需要去掉
-            String otherSplit = getOtherSplit(riff.getKeyword());
-            if (!StringUtils.isEmpty(otherSplit)) {
-                riff.setKeyword(riff.getKeyword().replace(otherSplit, "").trim());
-                //没有添加管道
-                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
-                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2 + otherSplit);
-            } else {
-                //保证管道符使用时必须在最后面缀空格符号此时，可以优先判断
-                String keyword = riff.getKeyword();
-//                System.err.println("===================="+keyword);
-                tmpKeyword = getPiPeSupport(fieldInfo, tmpKeyword, riff, keyword);
-            }
-            System.err.println("tmpKeyword=============" + tmpKeyword);
-            return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
-        } else {
-            return tmpKeyword;
-        }
     }
 
     /**
@@ -447,6 +461,30 @@ public class GenerateCode {
             }
         }
         return tmpKeyword;
+    }
+
+    private static String anaylseForeachData(String tmpVarOut, FieldInfo fieldInfo, String tmpKeyword) throws IllegalAccessException {
+        MatchKeywordStartToEnd riff = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1(StringUtils.concat("$[", tmpVarOut, "."), "]", tmpKeyword);
+        if (riff != null) {
+//            System.err.println("====================" + riff.getKeyword());
+            //特殊的以;,(结尾的需要去掉
+            String otherSplit = getOtherSplit(riff.getKeyword());
+            if (!StringUtils.isEmpty(otherSplit)) {
+                riff.setKeyword(riff.getKeyword().replace(otherSplit, "").trim());
+                //没有添加管道
+                String propertyValue2 = (String) ClassUtil.getPropertyValue(fieldInfo, riff.getKeyword());
+                tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2 + otherSplit);
+            } else {
+                //保证管道符使用时必须在最后面缀空格符号此时，可以优先判断
+                String keyword = riff.getKeyword();
+//                System.err.println("===================="+keyword);
+                tmpKeyword = getPiPeSupport(fieldInfo, tmpKeyword, riff, keyword);
+            }
+            System.err.println("tmpKeyword=============" + tmpKeyword);
+            return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
+        } else {
+            return tmpKeyword;
+        }
     }
 
     //通过package 解析包存储位置
@@ -637,15 +675,16 @@ public class GenerateCode {
                 String fieldNote = (String) e.get("COLUMN_COMMENT");
                 String fieldType = (String) e.get("COLUMN_TYPE");
                 String fieldPriKey = (String) e.get("COLUMN_KEY");
+                String fieldTypeNoNum = (String) e.get("DATA_TYPE");
                 if ("PRI".equals(fieldPriKey)) {
                     //添加主键字段信息
                     tableInfo.setPrimaryKeyInfo(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
-                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType)));
+                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum));
                 }
 
                 //字段信息
                 fieldInfos.add(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
-                        TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType)));
+                        TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum));
             }
             tableInfo.setFieldInfos(fieldInfos);
             list.add(tableInfo);

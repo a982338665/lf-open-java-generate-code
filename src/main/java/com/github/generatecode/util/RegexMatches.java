@@ -67,6 +67,20 @@ public class RegexMatches {
 //        System.err.println("+++++++++++++++++"+keyword);
         return keyword;
     }
+    public static String escapeExprSpecialWordSpecial(String keyword) {
+        if (!StringUtils.isEmpty(keyword)) {
+//            String[] fbsArr = {"\\", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|"};
+//            String[] fbsArr = { "\\", "$", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
+            String[] fbsArr = { "\\", "#", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|" };
+            for (String key : fbsArr) {
+                if (keyword.contains(key)) {
+                    keyword = keyword.replace(key, "\\" + key);
+                }
+            }
+        }
+//        System.err.println("+++++++++++++++++"+keyword);
+        return keyword;
+    }
 
     /**
      * 用来匹配开始-结束字符串中间的数据内容，并返回
@@ -171,6 +185,7 @@ public class RegexMatches {
      * @return
      */
     public static MatchKeywordStartToEnd matchKeywordStartToEndFindoneRegexLimit1(String start, String end, String text) {
+        System.err.println(start + "]]]]" + end + "]]]]" + text);
         start = escapeExprSpecialWord(start);
         end = escapeExprSpecialWord(end);
         String regex = getRegex(start, end);
@@ -233,5 +248,28 @@ public class RegexMatches {
     public static String getRegexFromLetter(String start, String end) {
 //        return StringUtils.concat("\\",start,"(?<scope>.*?)", end);           //不支持跨行匹配
         return StringUtils.concat(start, "(?<scope>[\\s\\S]*?)", end);      //支持跨行匹配
+    }
+
+    public static MatchKeywordStartToEnd matchKeywordStartToEndFindoneRegexLimit1Specal(String start, String end, String text) {
+        start = escapeExprSpecialWordSpecial(start);
+        end = escapeExprSpecialWordSpecial(end);
+        String regex = getRegexFromLetter(start, end);
+//        System.err.println(REGEX);
+        System.err.println(regex);
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(text); // 获取 matcher 对象
+        while (m.find()) {
+//            System.out.println("start(): " + m.start());
+//            System.out.println("end(): " + m.end());
+            String str = text.substring(m.start(), m.end());
+//            System.err.println(str);
+//            String finalVal = str.substring(m.start()+1,m.end()-1);
+//            str = str.replace(start, "");
+//            str = str.replace(end, "");
+            //(?<scope>.*?)是用于标识scope的方式，表示夹在中间的字符串都叫scope，可以通过matcher.group("scope")提取。
+            //[\\s\\S]*? 是用来匹配任意字符，表示在前后有界定的情况下（例如夹在<xxx></xxx>中间的字符串），可以忽略那些不规则字符串的匹配。
+            return new MatchKeywordStartToEnd(m.start(), m.end(), m.group("scope"), str);
+        }
+        return null;
     }
 }
