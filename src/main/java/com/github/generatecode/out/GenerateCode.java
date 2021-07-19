@@ -21,6 +21,7 @@ import static com.github.generatecode.constant.Constant.*;
  */
 public class GenerateCode {
 
+    private static Boolean isXmlVal = false;
 
     /**
      * 说明文档：
@@ -127,9 +128,11 @@ public class GenerateCode {
                 String[] isXML = coperReader.split(IS_XML_VAR);
                 if (isXML.length == 2) {
                     //xml格式
+                    isXmlVal = true;
                     generateXML(table, coperReader);
                 } else if (isXML.length < 2) {
                     //非xml格式
+                    isXmlVal = false;
                     generateClass(table, coperReader);
                 } else {
                     //xml格式错误
@@ -313,16 +316,16 @@ public class GenerateCode {
 //                        String propertyValue = (String) ClassUtil.getPropertyValue(fieldInfo, rif.getKeyword());
 //                        tmpKeyword = tmpKeyword.replace(rif.getKeywordFull(), propertyValue);
 //                        System.err.println(tmpKeyword);
-                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
+//                        String result = anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
+                        String result = !isXmlVal ? anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword) : anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword).trim() + "\n        ";
 //                        System.err.println(result);
+//                        System.err.println("--------------");
                         toReplace = StringUtils.concat(toReplace, result);
 //                        if (i == 0) {
 //                            toReplace = StringUtils.concat(toReplace, result,"\n");
 //                        } else {
 //                        }
-                        System.err.println(toReplace);
-                        System.err.println(toReplace);
-
+//                        System.err.println(toReplace);
                     } catch (IllegalAccessException ex) {
                         System.err.println("获取字段属性报错：" + keyword + "里面的" + rif.getKeyword());
                         ex.printStackTrace();
@@ -330,7 +333,8 @@ public class GenerateCode {
                 }
             }
 //            System.err.println();
-            baseInfo.put("toReplace", toReplace.trim());
+//            baseInfo.put("toReplace", toReplace.trim());
+            baseInfo.put("toReplace", !isXmlVal ? toReplace : toReplace.trim());
 //            baseInfo.put("autoImport",);
 
 
@@ -394,7 +398,7 @@ public class GenerateCode {
 //                System.err.println("===================="+keyword);
                 tmpKeyword = getPiPeSupport(fieldInfo, tmpKeyword, riff, keyword);
             }
-//            System.err.println(tmpKeyword);
+            System.err.println("tmpKeyword=============" + tmpKeyword);
             return anaylseForeachData(tmpVarOut, fieldInfo, tmpKeyword);
         } else {
             return tmpKeyword;

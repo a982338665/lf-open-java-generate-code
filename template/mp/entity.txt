@@ -14,19 +14,19 @@ package #defaultPackage;
 public class $!{camelCaseTableName}Model {
 
     #foreach_start($XXXX in $tableInfo.fieldInfos)
-        /**
-         * $[XXXX.fieldNote]
-         */
-        private $[XXXX.classTypeShort]  $[XXXX.camelCaseFieldName];
+    /**
+     * $[XXXX.fieldNote]
+     */
+    private $[XXXX.classTypeShort] $[XXXX.camelCaseFieldName];
     #foreach_end
     #foreach_start($XXXX in $tableInfo.fieldInfos)
-        public $[XXXX.classTypeShort]  get$[XXXX.camelCaseFieldName|upper] () {
-            return $[XXXX.camelCaseFieldName];
-        }
+    public $[XXXX.classTypeShort] get$[XXXX.camelCaseFieldName|upper]() {
+        return $[XXXX.camelCaseFieldName];
+    }
 
-        public void set$[XXXX.camelCaseFieldName|upper|upperAll] ($[XXXX.classTypeShort]  $[XXXX.camelCaseFieldName]) {
-            this.$[XXXX.camelCaseFieldName] = $[XXXX.camelCaseFieldName];
-        }
+    public void set$[XXXX.camelCaseFieldName|upper|upperAll]($[XXXX.classTypeShort] $[XXXX.camelCaseFieldName]) {
+        this.$[XXXX.camelCaseFieldName] = $[XXXX.camelCaseFieldName];
+    }
     #foreach_end
 }
 
