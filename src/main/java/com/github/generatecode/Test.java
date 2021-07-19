@@ -20,7 +20,7 @@ public class Test {
         instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\mp");
         SetGenerateConf.put_dynamic_map("test", "hhhhh");
         instance.setTableList(Arrays.asList(
-                new OutTableInfo("test")
+                new OutTableInfo("t_s_test","t_s_")
         ));
         GenerateCode.generateCode();
 

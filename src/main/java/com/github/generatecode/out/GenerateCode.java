@@ -438,6 +438,7 @@ public class GenerateCode {
             //此处keyword可能是riff.getKeyword()去掉前缀的后半部分
             try {
                 String propertyValue2 = (String) ClassUtil.getPropertyValue(info, keyword);
+                propertyValue2 = StringUtils.isEmpty(propertyValue2) ? "数据库缺少字段注释" : propertyValue2;
                 tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
             } catch (Exception e) {
                 System.err.println(info + "\n" + keyword);

@@ -18,7 +18,7 @@ import java.util.List;
  * @URL : !##{url}##
  * @CreateTime : !##{nowDate}##
  * @Description : 生成模板映射类- 存储模板对应关系
- * @TableName ：$!{tableName} !{tableNote}
+ * @TableName ：$!{tableName} $!{tableNote}
  */
 @RestController
 @RequestMapping("$!{camelCaseTableName|lower}")
