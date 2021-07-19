@@ -30,17 +30,17 @@
     5.循环支持：
         #foreach_start($XXXX in $tableInfo.fieldInfos)
             /**
-            * $XXXX.fieldNote
-            * #! $XXXX.fieldNote2  注意：中间的空格为两格，一个用来匹配数据，一个用来做符号间隔!#
+            * $[XXXX.fieldNote]
+            * #! $[XXXX.fieldNote2]  注意：中间的空格为两格，一个用来匹配数据，一个用来做符号间隔!#
             */
-            private $XXXX.classTypeShort  $XXXX.camelCaseFieldName;
+            private $[XXXX.classTypeShort]  $[XXXX.camelCaseFieldName];
         #foreach_end
     6.循环之管道符支持：|upper
         #foreach_start($XXXX in $tableInfo.fieldInfos)
-            public $XXXX.classTypeShort  get$XXXX.camelCaseFieldName|upper () {
-                return $XXXX.camelCaseFieldName;
+            public $[XXXX.classTypeShort]  get$[XXXX.camelCaseFieldName|upper] () {
+                return $[XXXX.camelCaseFieldName];
             }
         #foreach_end
         注意：
-           $XXXX.camelCaseFieldName 强调必须以空格结尾以便识别具体参数
-           $XXXX.camelCaseFieldName|upper 后面紧跟|upper 表示管道符，转换为首字母大写，仅支持一个
+           $[XXXX.camelCaseFieldName] 强调必须以空格结尾以便识别具体参数
+           $[XXXX.camelCaseFieldName|upper] 后面紧跟|upper 表示管道符，转换为首字母大写，仅支持一个
