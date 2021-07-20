@@ -435,7 +435,7 @@ public class GenerateCode {
         String[] pipe = keyword.split("\\|");
         if (pipe.length >= 2) {
             //获取属性值
-            String propertyValue2 = (String) ClassUtil.getPropertyValue(info, pipe[0]);
+            Object propertyValue2 =  ClassUtil.getPropertyValue(info, pipe[0]);
             //执行管道方法
             //添加管道方法,从第一个读取管道 标识
             for (int i = 1; i < pipe.length; i++) {
@@ -444,8 +444,8 @@ public class GenerateCode {
                 if (function == null) {
                     throw new IllegalAccessException("该管道符未申明，请使用正确的管道符或者在OutPipeFunction中自定义管道符：" + func);
                 } else {
-                    propertyValue2 = (String) function.apply(propertyValue2);
-                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue2);
+                    String propertyValue3 = (String) function.apply(propertyValue2);
+                    tmpKeyword = tmpKeyword.replace(riff.getKeywordFull(), propertyValue3);
                 }
             }
         } else {
