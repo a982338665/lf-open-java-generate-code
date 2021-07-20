@@ -1,5 +1,5 @@
 #setFileName[$!{camelCaseTableName}Dao.java] #!定义java文件名称!#
-#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\web\dao] #!此处路径只允许使用一个反斜杠!#
+#setFilePath[!##{basePath}##src\main\java\com\github\test\web\dao] #!此处路径只允许使用一个反斜杠!#
 
 package #defaultPackage; #!默认取出#setFilePath 中 \src\main\java\ 下的路径作为包路径，写死!#
 

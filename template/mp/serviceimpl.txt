@@ -1,5 +1,5 @@
 #setFileName[$!{camelCaseTableName}ServiceImpl.java] #!定义java文件名称!#
-#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\service\impl]
+#setFilePath[!##{basePath}##src\main\java\com\github\test\service\impl]
 
 package #defaultPackage;
 

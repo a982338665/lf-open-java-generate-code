@@ -1,5 +1,5 @@
 #setFileName[$!{camelCaseTableName}Controller.java] #!定义java文件名称!#
-#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\controller]
+#setFilePath[!##{basePath}##src\main\java\com\github\test\controller]
 package #defaultPackage;
 
 import org.springframework.web.bind.annotation.RequestMapping;

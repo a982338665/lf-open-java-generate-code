@@ -18,9 +18,12 @@ public class Test {
         SetGenerateConf instance = SetGenerateConf.getInstance();
 //        instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\xml");
         instance.setTemplateUrl("D:\\history-git\\git-20200729\\lf-open-java-generate-code\\template\\mp");
-        SetGenerateConf.put_dynamic_map("test", "hhhhh");
+
+//        instance.setDefaultBasePath("./xxx/");
+//        此处不支持反斜杠，预置包名的  默认值，此处配置则不需要 针对每个人出不同给的模板
+        SetGenerateConf.put_dynamic_map("basePath", ".\\xxxx\\");
         instance.setTableList(Arrays.asList(
-                new OutTableInfo("t_s_test","t_s_")
+                new OutTableInfo("t_s_test", "t_s_")
         ));
         GenerateCode.generateCode();
 

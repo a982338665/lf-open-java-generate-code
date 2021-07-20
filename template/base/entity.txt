@@ -1,5 +1,5 @@
 #setFileName[!{camelCaseTableName}Model.java] #!定义java文件名称!#
-#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\entity]
+#setFilePath[!##{basePath}##src\main\java\com\github\test\entity]
 
 package com.github.test.entity;
 #!  import java.util.HashMap; 导包仅支持左边格式，空格只有一个，且以分号结束   !#

@@ -1,5 +1,5 @@
 #setFileName[$!{camelCaseTableName}Mapper.xml] #!定义java文件名称!#
-#setFilePath[D:\history-git\git-20200729\lf-open-java-generate-code\src\main\java\com\github\test\mapper]
+#setFilePath[!##{basePath}##src\main\java\com\github\test\mapper]
 
 #XML  #!表示是否是XML格式内容!#
 
