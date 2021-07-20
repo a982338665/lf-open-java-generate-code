@@ -63,6 +63,16 @@ public class FieldInfo {
         this.classTypeShort = classTypeShort;
         this.fieldTypeNoNum = fieldTypeNoNum;
     }
+    public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType, String classType, String classTypeShort,String fieldTypeNoNum,boolean primaryKey) {
+        this.fieldName = fieldName;
+        this.fieldNote = fieldNote;
+        this.camelCaseFieldName = camelCaseFieldName;
+        this.fieldType = fieldType;
+        this.classType = classType;
+        this.classTypeShort = classTypeShort;
+        this.fieldTypeNoNum = fieldTypeNoNum;
+        this.primaryKey = primaryKey;
+    }
 
 
     public FieldInfo(String fieldName, String fieldNote, String camelCaseFieldName, String fieldType) {

@@ -392,18 +392,19 @@ public class GenerateCode {
 
     private static String dealIftrue(String toReplace) {
         MatchKeywordStartToEnd riftrue = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1Specal("#if(true)", "#end", toReplace);
-        if(riftrue!=null){
+        if (riftrue != null) {
             toReplace = toReplace.replace(riftrue.getKeywordFull(), riftrue.getKeyword());
-        }else{
+        } else {
             return toReplace;
         }
         return dealIftrue(toReplace);
     }
+
     private static String dealIffalse(String toReplace) {
         MatchKeywordStartToEnd rifalse = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1Specal("#if(false)", "#end", toReplace);
-        if(rifalse!=null){
+        if (rifalse != null) {
             toReplace = toReplace.replace(rifalse.getKeywordFull(), "");
-        }else{
+        } else {
             return toReplace;
         }
         return dealIffalse(toReplace);
@@ -679,12 +680,15 @@ public class GenerateCode {
                 if ("PRI".equals(fieldPriKey)) {
                     //添加主键字段信息
                     tableInfo.setPrimaryKeyInfo(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
-                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum));
+                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum, true));
+                    //字段信息
+                    fieldInfos.add(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
+                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum, true));
+                } else {
+                    //字段信息
+                    fieldInfos.add(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
+                            TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum, false));
                 }
-
-                //字段信息
-                fieldInfos.add(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,
-                        TypeCovert.getClassType(fieldType), TypeCovert.getClassTypeShort(fieldType), fieldTypeNoNum));
             }
             tableInfo.setFieldInfos(fieldInfos);
             list.add(tableInfo);
