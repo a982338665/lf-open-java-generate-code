@@ -10,7 +10,7 @@
     <resultMap id="BaseResultMap" type="com.github.test.entity.$!{camelCaseTableName}Model">
         <!--@Table $!{tableName}-->
         #foreach_start($column in $tableInfo.fieldInfos)
-            <result property="$[column.fieldName]" column="$[column.camelCaseFieldName]" jdbcType="$[column.fieldTypeNoNum]"/>
+            <result property="$[column.camelCaseFieldName]" column="$[column.fieldName]" jdbcType="$[column.fieldTypeNoNum]"/>
         #foreach_end
     </resultMap>
 
