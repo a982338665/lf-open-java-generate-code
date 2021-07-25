@@ -34,6 +34,7 @@ public class TypeCovert {
         typeMapping.put("int4","java.lang.Integer");
         typeMapping.put("int8","java.lang.Long");
         typeMapping.put("bigint(\\(\\d+\\))?","java.lang.Long");
+        typeMapping.put("tinyint(\\(\\d+\\))?","java.lang.Integer");
         typeMapping.put("datetime","java.util.Date");
         typeMapping.put("timestamp","java.util.Date");
         typeMapping.put("boolean","java.lang.Boolean");

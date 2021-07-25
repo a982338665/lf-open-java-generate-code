@@ -1,6 +1,5 @@
 package com.github.generatecode.util;
 
-import com.alibaba.druid.util.JdbcUtils;
 import com.github.generatecode.out.SetGenerateConf;
 
 import java.sql.*;

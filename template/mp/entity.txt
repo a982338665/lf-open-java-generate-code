@@ -17,6 +17,8 @@ public class $!{camelCaseTableName}Model {
     /**
      * $[XXXX.fieldNote]
      */
+#if($[XXXX.classTypeShort|judgeDateTime])   @JsonFormat(pattern = "yyyy-MM-dd")#end
+#if($[XXXX.primaryKey|judgeTrue])   @TableId(value = "$[XXXX.fieldName]", type = IdType.AUTO)#end
     private $[XXXX.classTypeShort] $[XXXX.camelCaseFieldName];
     #foreach_end
     #foreach_start($XXXX in $tableInfo.fieldInfos)
