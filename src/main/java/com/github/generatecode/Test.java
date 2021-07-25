@@ -34,7 +34,7 @@ public class Test {
         //预置模板可能会用到的管道符
         Map<String, Function> pipeMap = OutPipeFunction.PIPE_MAP;
         Function<Boolean, String> judgeTrue = (e) -> e ? "true" : "false";
-        Function<Boolean, String> judgeDateTime = (e) -> e.equals("LocalDateTime") ? "true" : "false";
+        Function<String, String> judgeDateTime = (e) -> e.equals("LocalDateTime") ? "true" : "false";
         pipeMap.put("judgeTrue", judgeTrue);
         pipeMap.put("judgeDateTime", judgeDateTime);
         //以下为管道符的使用方式
