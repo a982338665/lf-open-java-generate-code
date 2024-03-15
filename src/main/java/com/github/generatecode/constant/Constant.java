@@ -11,7 +11,7 @@ public interface Constant {
     /**
      * 定义的类的模板里面，用来指定默认包的，会被作为分隔符
      */
-    String PACKAGE_VAR = "package #defaultPackage;";
+    String PACKAGE_VAR = "package ";
 
     String SETFILENAME_START_VAR = "#setFileName[";
     String SETFILENAME_END_VAR = "]";

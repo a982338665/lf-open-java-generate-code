@@ -42,6 +42,10 @@ public class OutPipeFunction {
         Function<String, String> equalsString = (String e) -> {
             return "String".equals(e) ? "true" : "false";
         };
+        Function<Boolean, String> judgeTrue = (e) -> e == true ? "true" : "false";
+        Function<String, String> judgeDateTime = (e) -> e.equals("LocalDateTime") ? "true" : "false";
+        PIPE_MAP.put("judgeTrue", judgeTrue);
+        PIPE_MAP.put("judgeDateTime", judgeDateTime);
         PIPE_MAP.put("upper", upper);
         PIPE_MAP.put("lower", lower);
         PIPE_MAP.put("upperAll", upperAll);

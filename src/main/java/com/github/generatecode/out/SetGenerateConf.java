@@ -5,10 +5,8 @@ import com.github.generatecode.model.OutTableInfo;
 import com.github.generatecode.util.StringUtils;
 
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * 基础配置信息 - 对外暴露
@@ -24,6 +22,14 @@ public class SetGenerateConf {
     private String url = "jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC";
     private String user = "root";
     private String password = "root123";
+
+    private static String project = ".\\xxxx\\";
+    private static String entityPath = "com\\kinovo\\xxxx\\domain";
+    private static String entityC2sPath = "com\\kinovo\\xxxx\\domain\\c2s";
+    private static String daoPath = "com\\kinovo\\xxxx\\mapper";
+    private static String servicePath = "com\\kinovo\\xxxx\\service";
+    private static String serviceImplPath = "com\\kinovo\\xxxx\\service\\impl";
+    private static String controllerPath = "com\\kinovo\\xxxx\\controller";
 
     private SetGenerateConf() {
 
@@ -49,7 +55,7 @@ public class SetGenerateConf {
     /**
      * 读取模板的默认父路径
      */
-    private String templateUrl = "./";
+    private String templateUrl = "./template";
     /**
      * 生成代码的默认父亲路径：设置为null时，表示无父路径，此时直接读取子路径作为生成路径
      *
@@ -102,6 +108,8 @@ public class SetGenerateConf {
         SetGenerateConf.noteTemplateEnd = noteTemplateEnd;
     }
 
+    private static Function<String, String> convertPkg = (e) -> e.replaceAll("\\\\", "\\.");
+
     /**
      * 申明一些内置的动态变量，可以修改，使变量在模板中可用
      */
@@ -112,12 +120,38 @@ public class SetGenerateConf {
         DYNAMIC_MAP.put(getVarVal("author"), "皇夜_");
         //表示作者，使用时模板为!##{author}##
         DYNAMIC_MAP.put(getVarVal("url"), "CSDN 皇夜_");
+        put_dynamic_map("basePath", project);
+        put_dynamic_map("entityPath", entityPath);
+        put_dynamic_map("entityPkg", convertPkg.apply(entityPath));
+        put_dynamic_map("entityC2sPath", entityC2sPath);
+        put_dynamic_map("entityC2sPkg", convertPkg.apply(entityC2sPath));
+        put_dynamic_map("daoPath", daoPath);
+        put_dynamic_map("daoPkg", convertPkg.apply(daoPath));
+        put_dynamic_map("servicePath", servicePath);
+        put_dynamic_map("servicePkg", convertPkg.apply(servicePath));
+        put_dynamic_map("serviceImplPath", serviceImplPath);
+        put_dynamic_map("serviceImplPkg", convertPkg.apply(serviceImplPath));
+        put_dynamic_map("controllerPath", controllerPath);
+        put_dynamic_map("controllerPkg", convertPkg.apply(controllerPath));
+        put_dynamic_map("entitySuffix", "Entity");
+        put_dynamic_map("entityC2sSuffix", "C2SEntity");
+        put_dynamic_map("daoSuffix", "Mapper");
+        put_dynamic_map("mapperSuffix", "Mapper");
+        put_dynamic_map("serviceSuffix", "Service");
+        put_dynamic_map("serviceImplSuffix", "ServiceImpl");
+        put_dynamic_map("controllerSuffix", "Controller");
     }
 
     /**
      * 定义动态常量值
      */
     public static void put_dynamic_map(String key, String value) {
+        List<String> xxx = Arrays.asList("entityPath","entityC2sPath", "daoPath","servicePath", "serviceImplPath", "controllerPath");
+        if (xxx.contains(key)){
+            String replace = key.replace("Path", "Pkg");
+
+            DYNAMIC_MAP.put(getVarVal(replace), convertPkg.apply(value));
+        }
         DYNAMIC_MAP.put(getVarVal(key), value);
     }
 

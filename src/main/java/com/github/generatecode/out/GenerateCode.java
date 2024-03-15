@@ -7,7 +7,6 @@ import com.github.generatecode.model.TableInfo;
 import com.github.generatecode.template.BuiltInVar;
 import com.github.generatecode.template.TypeCovert;
 import com.github.generatecode.util.*;
-import com.sun.org.apache.bcel.internal.generic.IFEQ;
 
 import java.util.*;
 import java.util.function.Function;
@@ -149,6 +148,9 @@ public class GenerateCode {
     private static void generateClass(TableInfo table, String coperReader) {
         //4.2 针对每个表都有不一样的文件名，需要将文本文件拆分为两部分 2.1 文件名 2.2 文件内容
         String[] packages = coperReader.split(PACKAGE_VAR);
+        String aPackage1 = packages[1];
+        int iy = aPackage1.indexOf(";");
+        String aPackage = aPackage1.substring(iy + 1, aPackage1.length() - 1);
         //获取文件设置信息
         String filesInfo = packages[0].trim();
         String fileName = dealbaseInfoStartAndEnd(filesInfo, table, SETFILENAME_START_VAR, SETFILENAME_END_VAR);
@@ -162,7 +164,7 @@ public class GenerateCode {
 
         String packName = StringUtils.concat(PACKNAME_CONTENT_START_VAR, convertPackage, PACKNAME_CONTENT_END_VAR);
 
-        String aPackage = packages[1];
+
         String content = StringUtils.concat(packName, aPackage);
 //                System.err.println(fileName + "=========\n" + content);
         //4.3 递归循环问题解决
@@ -403,7 +405,17 @@ public class GenerateCode {
     private static String dealIffalse(String toReplace) {
         MatchKeywordStartToEnd rifalse = RegexMatches.matchKeywordStartToEndFindoneRegexLimit1Specal("#if(false)", "#end", toReplace);
         if (rifalse != null) {
-            toReplace = toReplace.replace(rifalse.getKeywordFull(), "");
+            toReplace = toReplace.replace(rifalse.getKeywordFull() + "  ", "#00%&");
+            String[] split = toReplace.split("\n");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < split.length; i++) {
+                String s = split[i];
+                if (!s.contains("#00%&")) {
+                    sb.append(s);
+                    sb.append("\n");
+                }
+            }
+            toReplace = sb.toString();
         } else {
             return toReplace;
         }
@@ -435,7 +447,7 @@ public class GenerateCode {
         String[] pipe = keyword.split("\\|");
         if (pipe.length >= 2) {
             //获取属性值
-            Object propertyValue2 =  ClassUtil.getPropertyValue(info, pipe[0]);
+            Object propertyValue2 = ClassUtil.getPropertyValue(info, pipe[0]);
             //执行管道方法
             //添加管道方法,从第一个读取管道 标识
             for (int i = 1; i < pipe.length; i++) {
