@@ -27,7 +27,7 @@ public interface Constant {
     /**
      * #setFilePath[]中取出的路径中  解析出当前生成类的包名，此为正则起始位置
      */
-    String PACKNAME_FORM_PATH_START_VAR = "\\src\\main\\java\\";
+    String PACKNAME_FORM_PATH_START_VAR = "/src/main/java/";
     /**
      * #setFilePath[]中取出的路径中  解析出当前生成类的包名，此为正则结束位置
      */
