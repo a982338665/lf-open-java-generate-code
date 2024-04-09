@@ -1,7 +1,5 @@
 package com.github.generatecode.util;
 
-import java.io.File;
-
 /**
  * @author : Mr huangye
  * @URL : CSDN 皇夜_
@@ -14,7 +12,8 @@ public class StringUtils {
         return concat("\\", str.replace(".", "\\"));
     }
     public static String convertPackage(String str) {
-        return str.replace("\\", ".");
+        String replace = str.replace("\\", ".");
+        return replace.replaceAll("/", ".");
     }
 
     public static String concatSync(String... strs) {
