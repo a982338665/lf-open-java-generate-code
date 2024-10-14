@@ -688,7 +688,13 @@ public class GenerateCode {
                 String fieldNote = (String) e.get("COLUMN_COMMENT");
                 String fieldType = (String) e.get("COLUMN_TYPE");
                 String fieldPriKey = (String) e.get("COLUMN_KEY");
-                String fieldTypeNoNum = (String) e.get("DATA_TYPE");
+                Object o = e.get("DATA_TYPE");
+                String fieldTypeNoNum;
+                if (o instanceof byte[]) {
+                    fieldTypeNoNum = new String((byte[]) o);
+                } else {
+                    fieldTypeNoNum = (String) o;
+                }
                 if ("PRI".equals(fieldPriKey)) {
                     //添加主键字段信息
                     tableInfo.setPrimaryKeyInfo(new FieldInfo(fieldName, fieldNote, StringUtils.getCamelCase(fieldName, false), fieldType,

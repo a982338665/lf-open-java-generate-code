@@ -7,7 +7,7 @@
 
 
     <!--注意限定版本一定为RELEASE,因为上传的对应仓库的存储类型为RELEASE-->
-    <version>1.0.2-RELEASE</version>
+    <version>1.0.3-RELEASE</version>
 
     <name>lf-open-java-generate-code</name>
     <url>https://github.com/a982338665/lf-open-java-generate-code.git</url>
